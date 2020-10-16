@@ -1,0 +1,10 @@
+The GCEN requires compiler and library support for the ISO C++ 2017 standard. 
+
+To compile the GCEN in Linux:
+make linux
+
+To compile the GCEN in macOS:
+make macos
+
+To compile the GCEN in Windows:
+make windows
