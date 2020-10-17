@@ -1,10 +1,14 @@
 ## GCEN: an easy toolkit for Gene Co-Expression Network Analysis and lncRNA annotation
-  
+
 
 #### Introduction  
-![](https://www.biochen.com/gcen/image/workflow.png)
-GCEN is a command-line toolkit that allows biologists to easily build gene co-expression network and predict gene function, especially in RNA-Seq research or lncRNA annotation. GCEN is primarily designed to be used in lncRNA annotation, but is not limited to those scenarios. It is an efficient and easy to use solution that will allow everyone to perform gene co-expression network analysis without sophisticated programming skills. The recommended pipeline consists of four parts: data pretreatment, network construction, module identification, and function annotation. A README file and sample data are included in the software package. Because of its modular design, the GCEN can be easily integrated into another pipeline. Also, the multithreaded implementation of GCEN makes it fast and efficient for RNA-Seq data.
+![](https://www.biochen.com/gcen/image/workflow.png)  
+GCEN is a command-line toolkit that allows biologists to easily build gene co-expression network and predict gene function, especially in RNA-Seq research or lncRNA annotation. GCEN is primarily designed to be used in lncRNA annotation, but is not limited to those scenarios. It is an efficient and easy-to-use solution that will allow everyone to perform gene co-expression network analysis without sophisticated programming skills. The recommended pipeline consists of four parts: data pretreatment, network construction, module identification, and function annotation. A README file and sample data are included in the software package. Because of its modular design, the GCEN can be easily integrated into another pipeline. Also, the multithreaded implementation of GCEN makes it fast and efficient for RNA-Seq data.
 
+#### Highlights  
+- Easy to use, without writing any code  
+- High speed and low memory, can run on a personal computer  
+- Suitable for RNA-Seq analysis  
 
 #### Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
@@ -219,6 +223,8 @@ identify genes with specific functions based on RWR (optional)
 rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene.list -o ../sample_data/rwr_result.tsv
 ```
 
+#### Data format  
+To understand the format of the input and output files for each program, please take a look at the sample data included in the software package.  
 
 #### Contact  
 Wen Chen,     Ph.D. Candidate,     chenwen@biochen.com
