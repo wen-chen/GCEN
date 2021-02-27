@@ -1,0 +1,8 @@
+v0.5.1
+    Use robin_hood::unordered_map instead of std::unordered_map for performance improvement;
+    The program rwr adds support for the weights and direction of the network;
+    The program data_norm adds support for the trimmed mean of M-values (TMM) algorithm;
+    The program data_filter adds support for filter based on a percentage (i.e. keep 75% of total genes).
+
+v0.5.0
+    The first public version.

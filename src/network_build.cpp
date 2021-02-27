@@ -12,14 +12,14 @@
 
 
 void network_build_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "network_build usage:\n";
   std::cout << "  network_build -i gene_expression_file -o co_expression_network_file\n";
   std::cout << "options:\n";
   std::cout << "  -i --input <input file>\n";
   std::cout << "  -o --output <output file>\n";
   std::cout << "  -m --method <pearson or spearman> correlation coefficient method (default: spearman)\n";
-  std::cout << "  -l --log <log2 or log10> make a log transformation (default: not transform)\n";
+  std::cout << "  -l --log <log, log2 or log10> make a log(x+1) transformation (default: not transform)\n";
   std::cout << "  -t --thread <number> cpu cores (default: 2)\n";
   std::cout << "  -p --pval <number> p value cutoff (default: 0.001)\n";
   std::cout << "  -c --cor <number> correlation coefficient cutoff (default: 0.1)\n";
@@ -33,12 +33,12 @@ void network_build_help() {
 
 
 void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <std::vector <double>> & GeneDataFrame,
-    std::vector <std::string> & GeneNameVector, double PvalCutoff, double CorCutoff, bool signed_network,
-    std::ofstream & OutFile);
+    std::vector <std::string> & GeneNameVector, double pval_cutoff, double cor_cutoff, bool signed_network,
+    std::ofstream & out_file);
 
 
 void ThreadFunc_FDR(int n, int thread_num, int GeneNum, int SampleNum, std::vector <std::vector <double>> & GeneDataFrame,
-    std::vector <std::string> & GeneNameVector, double PvalCutoff, double CorCutoff, bool signed_network,
+    std::vector <std::string> & GeneNameVector, double pval_cutoff, double cor_cutoff, bool signed_network,
     std::vector <std::pair <int, int>> & node_id_pairs, std::vector <double> & corrs, std::vector <double> & p_values);
 
 
@@ -54,8 +54,8 @@ int main(int argc, char* argv[]) {
   std::string method = "spearman";
   std::string log_transform = "";
   int thread_num = 2;
-  double CorCutoff = 0.1;
-  double PvalCutoff = 0.001;
+  double cor_cutoff = 0.1;
+  double pval_cutoff = 0.001;
   std::string fdr_opt = "";
   std::string signed_opt = "";
     
@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
         thread_num = std::stoi(optarg);
         break;
       case 'p':
-        PvalCutoff = std::stod(optarg);
+        pval_cutoff = std::stod(optarg);
         break;
       case 'c':
-        CorCutoff = std::stod(optarg);
+        cor_cutoff = std::stod(optarg);
         break;
       case 'f':
         fdr_opt = optarg;
@@ -136,10 +136,13 @@ int main(int argc, char* argv[]) {
   if (fdr_opt == "y" or fdr_opt == "Y") {
     fdr = true;
   }
-
+  
+  bool if_log = false;
   bool if_log2 = false;
   bool if_log10 = false;
-  if (log_transform == "log2") {
+  if (log_transform == "log") {
+    if_log = true;
+  } else if (log_transform == "log2") {
     if_log2 = true;
   } else if (log_transform == "log10") {
     if_log10 = true;
@@ -153,20 +156,20 @@ int main(int argc, char* argv[]) {
   // read file	
   std::vector <std::string> GeneNameVector;
   std::vector <std::vector <double> > GeneDataFrame;
-  load(in_file_name, GeneNameVector, GeneDataFrame, if_log2, if_log10);
+  load(in_file_name, GeneNameVector, GeneDataFrame, if_log, if_log2, if_log10);
 
   // get ranks
   int GeneNum = GeneNameVector.size();
   int SampleNum = GeneDataFrame[0].size();
   if (method == "spearman") {
     for (int i = 0; i < GeneNum; ++i) {
-      GeneDataFrame[i] = GetRanks(GeneDataFrame[i]);
+      GeneDataFrame[i] = get_rank(GeneDataFrame[i]);
     }
   }
 
   // open output file
-  std::ofstream OutFile(out_file_name, std::ios::out);
-  if (!OutFile.good()) {
+  std::ofstream out_file(out_file_name, std::ios::out);
+  if (!out_file.good()) {
     std::cerr << "Error while opening " << out_file_name << ".\n";
     return -2;
   }
@@ -183,7 +186,7 @@ int main(int argc, char* argv[]) {
     std::vector <std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {
       threads.push_back(std::thread{ ThreadFunc_FDR, i, thread_num, GeneNum, SampleNum, std::ref(GeneDataFrame),
-                                     std::ref(GeneNameVector), PvalCutoff, CorCutoff, signed_network, std::ref(node_id_pairs),
+                                     std::ref(GeneNameVector), pval_cutoff, cor_cutoff, signed_network, std::ref(node_id_pairs),
                                      std::ref(corrs), std::ref(p_values)});
     }
 
@@ -197,18 +200,20 @@ int main(int argc, char* argv[]) {
     calc_fdr(p_values, fdrs, max_edges);
 
     // output
+    out_file << "#Node1\tNode2\tCorrelation\tPvalue\tFDR\n";
     for (unsigned int i = 0; i <  p_values.size(); ++i) {
       std::string line = GeneNameVector[node_id_pairs[i].first] + '\t' + GeneNameVector[node_id_pairs[i].second]
                          + '\t' + std::to_string(corrs[i]) + '\t' + double_to_string(p_values[i]) + '\t'
                          + double_to_string(fdrs[i]) + '\n';
-      OutFile << line;
+      out_file << line;
     }
   } else { // non-fdr
-    //multi-thread
+    out_file << "#Node1\tNode2\tCorrelation\tPvalue\tFDR\n";
+    // multi-thread
     std::vector <std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {
       threads.push_back(std::thread{ ThreadFunc, i, thread_num, GeneNum, SampleNum, std::ref(GeneDataFrame),
-                                     std::ref(GeneNameVector), PvalCutoff, CorCutoff, signed_network, std::ref(OutFile)});
+                                     std::ref(GeneNameVector), pval_cutoff, cor_cutoff, signed_network, std::ref(out_file)});
     }
 
     for (auto & t : threads) {
@@ -224,8 +229,8 @@ static std::mutex mutex_lock;
 
 
 void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <std::vector <double>> & GeneDataFrame,
-    std::vector <std::string> & GeneNameVector, double PvalCutoff, double CorCutoff, bool signed_network,
-    std::ofstream & OutFile) {
+    std::vector <std::string> & GeneNameVector, double pval_cutoff, double cor_cutoff, bool signed_network,
+    std::ofstream & out_file) {
   std::vector <std::string> tmp;
 
   // section I
@@ -238,7 +243,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < PvalCutoff and std::abs(corr) > CorCutoff) {
+      if (prob < pval_cutoff and std::abs(corr) > cor_cutoff) {
         std::string item = GeneNameVector[i] + '\t' + GeneNameVector[j] + '\t' + std::to_string(corr) + '\t'
                            + double_to_string(prob) + '\n';
         tmp.push_back(item);
@@ -246,7 +251,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
       if (tmp.size() > 9999) {
         mutex_lock.lock();
         for (auto line : tmp) {
-          OutFile << line;
+          out_file << line;
         }
         mutex_lock.unlock();
         tmp.clear();
@@ -264,7 +269,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < PvalCutoff and std::abs(corr) > CorCutoff) {
+      if (prob < pval_cutoff and std::abs(corr) > cor_cutoff) {
         std::string item = GeneNameVector[i] + '\t' + GeneNameVector[j] + '\t' + std::to_string(corr) + '\t'
                            + double_to_string(prob) + '\n';
         tmp.push_back(item);
@@ -272,7 +277,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
       if (tmp.size() > 9999) {
         mutex_lock.lock();
         for (auto line : tmp) {
-          OutFile << line;
+          out_file << line;
         }
         mutex_lock.unlock();
         tmp.clear();
@@ -283,7 +288,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
   if (tmp.size() > 0) {
     mutex_lock.lock();
     for (auto line : tmp) {
-      OutFile << line;
+      out_file << line;
     }
     mutex_lock.unlock();
     tmp.clear();
@@ -292,7 +297,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
 
 
 void ThreadFunc_FDR(int n, int thread_num, int GeneNum, int SampleNum, std::vector <std::vector <double>> & GeneDataFrame,
-    std::vector <std::string> & GeneNameVector, double PvalCutoff, double CorCutoff, bool signed_network,
+    std::vector <std::string> & GeneNameVector, double pval_cutoff, double cor_cutoff, bool signed_network,
     std::vector <std::pair <int, int>> & node_id_pairs, std::vector <double> & corrs, std::vector <double> & p_values) {
   std::vector <std::pair <int, int>> local_node_id_pairs;
   std::vector <double> local_corrs;
@@ -308,7 +313,7 @@ void ThreadFunc_FDR(int n, int thread_num, int GeneNum, int SampleNum, std::vect
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < PvalCutoff and std::abs(corr) > CorCutoff) {
+      if (prob <= pval_cutoff and std::abs(corr) >= cor_cutoff) {
         local_node_id_pairs.push_back(std::pair <int, int> {i, j});
         local_corrs.push_back(corr);
         local_p_values.push_back(prob);
@@ -326,7 +331,7 @@ void ThreadFunc_FDR(int n, int thread_num, int GeneNum, int SampleNum, std::vect
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < PvalCutoff and std::abs(corr) > CorCutoff) {
+      if (prob <= pval_cutoff and std::abs(corr) >= cor_cutoff) {
         local_node_id_pairs.push_back(std::pair <int, int> {i, j});
         local_corrs.push_back(corr);
         local_p_values.push_back(prob);

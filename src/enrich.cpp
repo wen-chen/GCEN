@@ -11,7 +11,7 @@
 
 
 void enrich_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "enrich usage:\n";
   std::cout << "  enrich -e enrichment_gene_list_file -b background_gene_list_file -g go-basic.obo "
                "-a gene_go_association_file -p p_value_cutoff -o out_put_file\n";

@@ -15,7 +15,13 @@
 
 
 void display_version() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, httpw://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+}
+
+double string_to_log(const std::string & a_str, size_t * idx = 0) {
+  double a_double = std::stod(a_str, idx);
+  double b_double = std::log(a_double + 1.0);
+  return b_double;
 }
 
 
@@ -34,8 +40,11 @@ double string_to_log10(const std::string & a_str, size_t * idx = 0) {
 
 
 void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
-    std::vector <std::vector <double> > & GeneDataFrame, bool if_log2 = false, bool if_log10 = false) {
+    std::vector <std::vector <double> > & GeneDataFrame, bool if_log = false, bool if_log2 = false, bool if_log10 = false) {
   double (* str_to_double) (const std::string &, size_t *) = std::stod;
+  if (if_log) {
+    str_to_double = string_to_log;
+  }
   if (if_log2) {
     str_to_double = string_to_log2;
   }
@@ -48,13 +57,16 @@ void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
     exit(-1);
   }
 
-  std::string lineString;
-  while (getline(inFile, lineString)) {
-    strim(lineString);
+  std::string line;
+  while (getline(inFile, line)) {
+    strim(line);
+    if (line[0] == '#') {
+      continue;
+    }
     std::vector <double> line_list;
     std::stringstream slineString;
-    slineString << lineString;
-    std::string singleString;		
+    slineString << line;
+    std::string singleString;
     try {
       getline(slineString, singleString, '\t');
       std::string gene_name = singleString;
@@ -76,56 +88,52 @@ void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
 }
 
 
-void matrix_transpose(const std::vector <std::vector <double> > & Matrix1,
-    std::vector <std::vector <double> > & Matrix2) {
-  int Matrix1_RowNum = Matrix1.size();
-  int Matrix1_ColNum = Matrix1[0].size();
-  int Matrix2_RowNum = Matrix2.size();
-  int Matrix2_ColNum = Matrix2[0].size();
-  if (Matrix1_RowNum == Matrix2_ColNum && Matrix1_ColNum == Matrix2_RowNum) {
-    for (int i = 0; i < Matrix1_RowNum; ++i) {
-      for (int j = 0; j < Matrix1_ColNum; ++j) {
-        Matrix2[j][i] = Matrix1[i][j];
-      }
+std::vector <std::vector <double>> matrix_transpose(const std::vector <std::vector <double>> & matrix) {
+  int matrix_row_num = matrix.size();
+  int matrix_col_num = matrix[0].size();
+  std::vector <std::vector <double>> matrix_t (matrix_col_num, std::vector <double> (matrix_row_num));
+  for (int i = 0; i < matrix_row_num; ++i) {
+    for (int j = 0; j < matrix_col_num; ++j) {
+      matrix_t[j][i] = matrix[i][j];
     }
-  } else {
-    std::cerr << "Error in function matrix_transpose.\n";
-    exit(-1);
   }
+  return matrix_t;
 }
 
 
-double sorted_vector_median(const std::vector <double> & sorted_vector) {
-  double median;
-  int len = sorted_vector.size();
-  if (len % 2) {
-    median = sorted_vector[len / 2];
-  } else {
-    median = (sorted_vector[len / 2] + sorted_vector[len / 2 - 1]) / 2;
-  }
-  return median;
-}
-
-
-double sorted_vector_upperquartile(const std::vector <double> & sorted_vector) {
-  double upperquartile;
-  int len = sorted_vector.size();
+double upper_quartile(std::vector <double> vec) {
+  std::sort(vec.begin(), vec.end());
+  double upqt;
+  int len = vec.size();
   if (len % 2) {
     int half_len = len / 2 + 1;
     if (half_len % 2) {
-      upperquartile = sorted_vector[(half_len + len) / 2];
+      upqt = vec[(half_len + len) / 2];
     } else {
-      upperquartile = (sorted_vector[(half_len + len) / 2] + sorted_vector[(half_len + len) / 2 - 1]) / 2;
+      upqt = (vec[(half_len + len) / 2] + vec[(half_len + len) / 2 - 1]) / 2;
     }
   } else {
     int half_len = len / 2;
     if (half_len % 2) {
-      upperquartile = sorted_vector[(half_len + len) / 2];
+      upqt = vec[(half_len + len) / 2];
     } else {
-      upperquartile = (sorted_vector[(half_len + len) / 2] + sorted_vector[(half_len + len) / 2 - 1]) / 2;
+      upqt = (vec[(half_len + len) / 2] + vec[(half_len + len) / 2 - 1]) / 2;
     }
   }
-  return upperquartile;
+  return upqt;
+}
+
+
+double median(std::vector <double> vec) {
+  std::sort(vec.begin(), vec.end());
+  double m;
+  int len = vec.size();
+  if (len % 2) {
+    m = vec[len / 2];
+  } else {
+    m = (vec[len / 2] + vec[len / 2 - 1]) / 2;
+  }
+  return m;
 }
 
 
@@ -176,7 +184,7 @@ void split_string(const std::string & s, std::vector <std::string> & v, const st
   while (std::string::npos != pos || std::string::npos != last_pos) {
     v.push_back(s.substr(last_pos, pos - last_pos));
     last_pos = s.find_first_not_of(c, pos);
-    pos = s.find_first_of(c, last_pos);        
+    pos = s.find_first_of(c, last_pos);
   }
 }
 
@@ -200,7 +208,7 @@ std::string double_to_string(double d) {
 }
 
 
-std::vector <double> GetRanks(std::vector <double> & data) {
+std::vector <double> get_rank(std::vector <double> & data) {
   int len = data.size();
   std::vector <int> index(len, 0);
   std::vector <double> rank(len, 0);

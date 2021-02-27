@@ -124,6 +124,9 @@ void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO
 
   while (getline(obo_file, lineString)) {
     strim(lineString);
+    if (lineString[0] == '#') {
+        continue;
+      }
     if ((!flag) && (lineString.substr(0,6) == "[Term]")) {
       go_term_vector.push_back(GO_term());
       flag = true;
@@ -165,6 +168,9 @@ void assoc_parser(std::string & assoc_file_name, std::unordered_map <std::string
   std::string lineString;
   while (getline(assoc_file, lineString)) {
     strim(lineString);
+    if (lineString[0] == '#') {
+        continue;
+      }
     std::stringstream slineString;
     slineString << lineString;
     std::string gene_name;
@@ -198,6 +204,9 @@ void assoc_parser(std::string & assoc_file_name,
   std::string lineString;
   while (getline(assoc_file, lineString)) {
     strim(lineString);
+    if (lineString[0] == '#') {
+      continue;
+    }
     std::stringstream slineString;
     slineString << lineString;
     std::string gene;
@@ -243,10 +252,13 @@ void load_network(std::string & network_file_name,
   std::string lineString;
   while (getline(network_file, lineString)) {
     strim(lineString);
-    std::vector <std::string> item;
-    split_string(lineString, item, "\t");
-    std::string geneA = item[0];
-    std::string geneB = item[1];
+    if (lineString[0] == '#') {
+      continue;
+    }
+    std::vector <std::string> str_vec;
+    split_string(lineString, str_vec, "\t");
+    std::string geneA = str_vec[0];
+    std::string geneB = str_vec[1];
     if ((assoc_map.find(geneA) == assoc_map.end()) && (assoc_map.find(geneB) != assoc_map.end())) {
       if (network.find(geneA) != network.end()) {
         network[geneA].insert(geneB);
@@ -281,6 +293,9 @@ void load_module(std::string & module_file_name, std::vector <std::unordered_set
   std::string lineString;
   while (getline(module_file, lineString)) {
     strim(lineString);
+    if (lineString[0] == '#') {
+      continue;
+    }
     std::unordered_set <std::string> module;
     std::stringstream slineString;
     slineString << lineString;
@@ -308,6 +323,9 @@ void load_gene_list(std::string & gene_list_file_name,
   std::string lineString;  
   while (getline(gene_list_file, lineString)) {
     strim(lineString);
+    if (lineString[0] == '#') {
+      continue;
+    }
     if (assoc_map.find(lineString) != assoc_map.end()) {
       gene_map[lineString] = assoc_map[lineString];
     }
@@ -382,11 +400,14 @@ void K2ko_parser(std::string & K2ko_file_name,
   std::string lineString;
   while (getline(K2ko_file, lineString)) {
     strim(lineString);
-    std::vector <std::string> item;
-    split_string(lineString, item, "\t");
-    std::string K = item[0];
-    std::string ko = item[1];
-    std::string desc = item[2];
+    if (lineString[0] == '#') {
+      continue;
+    }
+    std::vector <std::string> str_vec;
+    split_string(lineString, str_vec, "\t");
+    std::string K = str_vec[0];
+    std::string ko = str_vec[1];
+    std::string desc = str_vec[2];
 
     if (K_map.find(K) != K_map.end()) {
       K_map[K].insert(ko);

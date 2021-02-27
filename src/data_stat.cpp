@@ -6,7 +6,7 @@
 
 
 void data_stat_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "data_stat usage:\n";
   std::cout << "  data_stat -i input_file\n";
   std::cout << "options:\n";
@@ -76,6 +76,9 @@ int main(int argc, char* argv[]) {
   std::vector <double> sd_vec;
   while (getline(in_file, line)) {
     strim(line);
+    if (line[0] == '#') {
+      continue;
+    }
     std::vector <std::string> str_vec;
     split_string(line, str_vec, "\t");
     try {
@@ -89,6 +92,8 @@ int main(int argc, char* argv[]) {
       continue;
     }
   }
+
+  in_file.close();
 
   double mean_of_mean = mean(mean_vec);
   double sd_of_mean = deviation(mean_vec);

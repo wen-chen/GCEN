@@ -12,7 +12,7 @@
 
 
 void go_annot_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "annotate usage:\n";
   std::cout << "  annotate -g go-basic.obo -a gene_go_association_file -n input_network -o out_dir\n";
   std::cout << "options:\n";

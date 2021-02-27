@@ -10,9 +10,9 @@
 
 
 void stringtie_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
-  std::cout << "generate_expr_matrics_from_stringtie usage:\n";
-  std::cout << "  generate_expr_matrics_from_stringtie -i input_file -o output_file\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "generate_expr_matrix_from_stringtie usage:\n";
+  std::cout << "  generate_expr_matrix_from_stringtie -i input_file -o output_file\n";
   std::cout << "options:\n";
   std::cout << "  -i --input <input file> a text file with sample ID and path to its GTF file on each line\n";
   std::cout << "  -o --output <output file>\n";

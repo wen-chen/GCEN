@@ -36,8 +36,8 @@ macos:
 	$(CXX) src/data_stat.cpp -o util/data_stat $(MFLAGS)
 	$(CXX) src/network_merge.cpp -o util/network_merge $(MFLAGS)
 	$(CXX) src/enrich.cpp -o util/enrich $(MFLAGS)
-	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o util/generate_expr_matrix_from_rsem $(LFLAGS)
-	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o util/generate_expr_matrix_from_stringtie $(LFLAGS)
+	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o util/generate_expr_matrix_from_rsem $(MFLAGS)
+	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o util/generate_expr_matrix_from_stringtie $(MFLAGS)
 
 
 windows: 
@@ -54,8 +54,8 @@ windows:
 	$(CXX) src/data_stat.cpp -o util/data_stat $(WFLAGS)
 	$(CXX) src/network_merge.cpp -o util/network_merge $(WFLAGS)
 	$(CXX) src/enrich.cpp -o util/enrich $(WFLAGS)
-	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o util/generate_expr_matrix_from_rsem $(LFLAGS)
-	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o util/generate_expr_matrix_from_stringtie $(LFLAGS)
+	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o util/generate_expr_matrix_from_rsem $(WFLAGS)
+	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o util/generate_expr_matrix_from_stringtie $(WFLAGS)
 
 
 clean:

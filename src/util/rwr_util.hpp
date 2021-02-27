@@ -5,13 +5,13 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 #include <cstdlib> // needed to use the exit() function
-#include "../Eigen3.3.7/Dense"
 #include "func.hpp"
 #include "strim.hpp"
+#include "../third_party/robin_hood.h"
+#include "../third_party/Eigen3.3.7/Dense"
+
 
 using Dynamic_Matrix = Eigen::Matrix <double, Eigen::Dynamic, Eigen::Dynamic>;
 using Dynamic_Vector = Eigen::Matrix <double, Eigen::Dynamic, 1>;
@@ -34,13 +34,9 @@ class RWR_result {
 int rwr(Dynamic_Matrix & W, Dynamic_Vector & P0, double gamma, std::vector <std::string> & gene_vec, Dynamic_Vector & PT) {
   // network normalization
   for (int i = 0; i < W.cols(); ++i) {
-    double col_sum = W.col(i).sum();
+    double col_sum = W.col(i).cwiseAbs().sum();
     if (col_sum > 0) {
       W.col(i) = W.col(i) / col_sum;
-    } else {
-      std::string gene = gene_vec[i];
-      std::cerr << "Error: " << gene << " is not linked to any other gene.\n";
-      exit(-1);
     }
   }
 
@@ -48,9 +44,9 @@ int rwr(Dynamic_Matrix & W, Dynamic_Vector & P0, double gamma, std::vector <std:
   PT = P0;
   int step = 0;
   double delta = 1.0;
-  while (delta > 1e-10) {
+  while ((delta > 1e-10) && (step < 1000000)) {
     Dynamic_Vector PT1 = (1 - gamma) * W * PT + gamma * P0;
-    delta = (PT1 - PT).array().abs().sum();    
+    delta = (PT1 - PT).array().abs().sum();
     PT = PT1;
     step = step + 1;
   }
@@ -58,9 +54,10 @@ int rwr(Dynamic_Matrix & W, Dynamic_Vector & P0, double gamma, std::vector <std:
   return step;
 }
 
-void load_network(std::string & network_file_name, 
+
+void load_network(std::string & network_file_name, bool if_directed_network, bool if_weighted_network,
     std::vector <std::string> & gene_vec, 
-    std::unordered_map <std::string, std::unordered_set <std::string>> & network) {
+    robin_hood::unordered_map <std::string, robin_hood::unordered_map <std::string, double>> & network) {
   // open network file
   std::ifstream network_file(network_file_name, std::ios::in);
   if (!network_file.good()) {
@@ -68,75 +65,114 @@ void load_network(std::string & network_file_name,
   }
 
   // read network file
-  std::string lineString;
-  std::unordered_set <std::string> gene_set;
+  std::string line;
+  robin_hood::unordered_set <std::string> gene_set;
 
-  while (getline(network_file, lineString)) {
-    strim(lineString);
-    std::vector <std::string> item;
-    split_string(lineString, item, "\t");
-    std::string geneA = item[0];
-    std::string geneB = item[1];
+  while (getline(network_file, line)) {
+    strim(line);
+    if (line[0] == '#') {
+      continue;
+    }
+    std::vector <std::string> str_vec;
+    split_string(line, str_vec, "\t");
+    std::string gene_a = str_vec[0];
+    std::string gene_b = str_vec[1];
 
-    gene_set.insert(geneA);
-    gene_set.insert(geneB);
-    
-    if (network.find(geneA) != network.end()) {
-      network[geneA].insert(geneB);
-    } else {
-      network[geneA] = std::unordered_set < std::string > {};
-      network[geneA].insert(geneB);
+    double weight = 1.0;
+    if ((if_weighted_network) && (str_vec.size() > 2)) {
+      try {
+        weight = std::stod(str_vec[2]);
+      } catch (std::invalid_argument) {
+        std::cerr << "Error: the edge weights of network must be numerical.\n";
+        exit(-1);
+      }
     }
 
-    if (network.find(geneB) != network.end()) {
-      network[geneB].insert(geneA);
+    gene_set.insert(gene_a);
+    gene_set.insert(gene_b);
+
+    if (network.find(gene_a) != network.end()) {
+      network[gene_a][gene_b] = weight;
     } else {
-      network[geneB] = std::unordered_set <std::string> {};
-      network[geneB].insert(geneA);
-    }    
+      network[gene_a] = robin_hood::unordered_map <std::string, double> {};
+      network[gene_a][gene_b] = weight;
+    }
+
+    if (!if_directed_network) {
+      if (network.find(gene_b) != network.end()) {
+        network[gene_b][gene_a] = weight;
+      } else {
+        network[gene_b] = robin_hood::unordered_map <std::string, double> {};
+        network[gene_b][gene_a] = weight;
+      }
+    }
   }
 
   gene_vec.assign(gene_set.begin(), gene_set.end());
 }
 
+
 void network_2_matrix(std::vector <std::string> & gene_vec,
-    std::unordered_map <std::string, std::unordered_set <std::string>> & network, 
+    robin_hood::unordered_map <std::string, robin_hood::unordered_map <std::string, double>> & network, 
     Dynamic_Matrix & matrix) {
   for (int i = 0; i < gene_vec.size(); ++i) {
     matrix(i, i) = 0.0;
     for (int j = i + 1; j < gene_vec.size(); ++j) {
-      std::string geneA = gene_vec[i];
-      std::string geneB = gene_vec[j];
-      if (network[geneA].find(geneB) != network[geneA].end()) {
-        matrix(i, j) = 1.0;
-        matrix(j, i) = 1.0;
+      std::string gene_a = gene_vec[i];
+      std::string gene_b = gene_vec[j];
+
+      if ((network.find(gene_a) != network.end()) && (network[gene_a].find(gene_b) != network[gene_a].end())) {
+        matrix(i, j) = network[gene_a][gene_b];
       } else {
         matrix(i, j) = 0.0;
+      }
+
+      if ((network.find(gene_b) != network.end()) && (network[gene_b].find(gene_a) != network[gene_b].end())) {
+        matrix(j, i) = network[gene_b][gene_a];
+      } else {
         matrix(j, i) = 0.0;
       }
     }
   }
 }
 
-void load_gene(std::string & gene_file_name, 
-    std::vector <std::string> & gene_vec,
+
+void load_gene(std::string & gene_file_name,
+    std::vector <std::string> & gene_vec, bool if_weighted_gene,
     Dynamic_Vector & dynamic_vec) {
   std::ifstream gene_file(gene_file_name, std::ios::in);
   if (!gene_file.good()) {
     std::cerr << "Error while opening " << gene_file_name << ".\n";
   }
 
-  std::string gene;
-  std::unordered_set <std::string> gene_set;
-  while (getline(gene_file, gene)) {
-    strim(gene);
-    gene_set.insert(gene);
+  std::string line;
+  robin_hood::unordered_map <std::string, double> gene_map;
+  while (getline(gene_file, line)) {
+    strim(line);
+    if (line[0] == '#') {
+      continue;
+    }
+    std::vector <std::string> str_vec;
+    split_string(line, str_vec, "\t");
+    std::string gene = str_vec[0];
+
+    double weight = 1.0;
+    if ((if_weighted_gene) && (str_vec.size() > 1)) {
+      try {
+        weight = std::stod(str_vec[1]);
+      } catch (std::invalid_argument) {
+        std::cerr << "Error: the weight of seed genes must be numerical.\n";
+        exit(-1);
+      }
+    }
+
+    gene_map[gene] = weight;
   }
 
   for (int i = 0; i < gene_vec.size(); ++i) {
-    gene = gene_vec[i];
-    if (gene_set.find(gene) != gene_set.end()) {
-      dynamic_vec[i] = 1.0;
+    std::string gene = gene_vec[i];
+    if (gene_map.find(gene) != gene_map.end()) {
+      dynamic_vec[i] = gene_map[gene];
     } else {
       dynamic_vec[i] = 0.0;
     }

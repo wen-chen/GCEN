@@ -9,7 +9,7 @@
 
 
 void rsem_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "generate_expr_matrix_from_rsem usage:\n";
   std::cout << "  generate_expr_matrix_from_rsem -i input_file -o output_file\n";
   std::cout << "options:\n";

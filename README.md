@@ -1,6 +1,6 @@
-## GCEN: an easy toolkit for Gene Co-Expression Network Analysis and lncRNA annotation  
+## GCEN: an easy toolkit of Gene Co-Expression Network analysis for lncRNA annotation  
 
-![GitHub](https://img.shields.io/github/license/wen-chen/gcen)
+![license GPL-3.0](https://img.shields.io/github/license/wen-chen/gcen)
 
 #### Introduction  
 ![](https://www.biochen.com/gcen/image/workflow.png)  
@@ -14,13 +14,13 @@ GCEN is a command-line toolkit that allows biologists to easily build gene co-ex
 #### Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.5.0-linux-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.0-linux-x86_64.tar.gz)  
+[gcen-0.5.1-linux-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-linux-x86_64.tar.gz)  
 
-[gcen-0.5.0-macOS-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.0-macOS-x86_64.tar.gz)  
+[gcen-0.5.1-macOS-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-macOS-x86_64.tar.gz)  
 
-[gcen-0.5.0-windows-x86_64.zip](https://www.biochen.com/gcen/download/gcen-0.5.0-windows-x86_64.zip)  
+[gcen-0.5.1-windows-x86_64.zip](https://www.biochen.com/gcen/download/gcen-0.5.1-windows-x86_64.zip)  
 
-[gcen-0.5.0-source.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.0-source.tar.gz)  
+[gcen-0.5.1-source.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-source.tar.gz)  
 
 #### Usage  
 ```
@@ -32,7 +32,7 @@ usage:
 options:
   -i --input <input file>
   -o --output <output file>
-  -m  --method <upqt or median or deseq> normalization method (default: upqt)
+  -m --method <upqt/median/deseq/tmm> normalization method (default: upqt)
   -v --version display GCEN version
   -h --help print help information
 example:
@@ -46,12 +46,14 @@ usage:
 options:
   -i --input <input file>
   -o --output <output file>
-  -m --mean <number> mean cutoff (default: 0.0)
-  -s --std <number> standard deviation cutoff (default: 0.0)
+  -c --cutoff_mean <number> mean cutoff of gene expression (default: 0.0)
+  -C --cutoff_sd <number> standard deviation cutoff of gene expression (default: 0.0)
+  -p --percent_mean <number> keep a proportion of total genes based mean of gene expression (default: 1.0)
+  -P --percent_sd <number> keep a proportion of total genes based standard deviation of gene expression (default: 1.0)
   -v --version display GCEN version
   -h --help print help information
 example:
-  data_filter -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_filter.tsv
+  data_filter -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_filter.tsv -p 0.75
 
 network_build
 description:
@@ -62,7 +64,7 @@ options:
   -i --input <input file>
   -o --output <output file>
   -m --method <pearson or spearman> correlation coefficient method (default: spearman)
-  -l --log <log2 or log10> make a log transformation (default: not transform)
+  -l --log <log, log2 or log10> make a log(x+1) transformation (default: not transform)
   -t --thread <number> cpu cores (default: 2)
   -p --pval <number> p value cutoff (default: 0.001)
   -c --cor <number> correlation coefficient cutoff (default: 0.1)
@@ -105,10 +107,10 @@ options:
   -v --version display GCEN version
   -h --help print help information
 examples:
-  annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_go_annotation
-  annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -m ../sample_data/module.txt -o ../sample_data/module_go_annotation
-  annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
-  annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -m ./sample_data/module.txt -o ../sample_data/module_kegg_annotation
+  ./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_go_annotation
+  ./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -m ../sample_data/module.txt -o ../sample_data/module_go_annotation
+  ./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
+  ./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -m ./sample_data/module.txt -o ../sample_data/module_kegg_annotation
 
 rwr
 description:
@@ -117,14 +119,17 @@ usage:
   rwr -n input_network -g gene_list -o output_result
 options:
   -n --network <network file>
-  -g --gene <gene list file>
+  -g --gene <seed genes list file>
   -r --gamma <number> restart probability (default: 0.5)
   -p --prob <number> probability cutoff (defalut: 0.01)
   -o --output <output file>
-  -v --version display GCEN++ version
+  -d --directed_network the input network is directed (defalut: the input network is undirected)
+  -w --weighted_network the edge weights of network will be considered (defalut: all edge weights of network are set to 1.0)
+  -W --weighted_gene the weights of seed genes will be considered (defalut: all weights of seed genes are set to 1.0)
+  -v --version display GCEN version
   -h --help print help information
 example:
-  rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene.list -o ../sample_data/rwr_result.tsv
+  rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_seed_genes.list -o ../sample_data/rwr_ranked_gene.tsv
 
 data_stat
 description:
@@ -137,8 +142,6 @@ options:
   -h --help print help information
 example:
   data_stat -i ../sample_data/gene_expr.tsv
-others:
-  input file format: table separate, first column are genename, the others are gene expression value
 
 network_merge
 description:
@@ -157,7 +160,7 @@ enrich
 description:
   The program enrich can perform GO/KEGG enrichment.
 usage:
-  enrich -e enrichment_gene_list_file -b background_gene_list_file -a gene_go_association_file -p p_value_cutoff -o out_put_file
+  enrich -e enrichment_gene_list_file -b background_gene_list_file -g go-basic.obo -a gene_go_association_file -p p_value_cutoff -o out_put_file
 options:
   -e --enrich <enrichment gene list file>
   -b --background <background gene list file>
@@ -166,7 +169,7 @@ options:
   -a --assoc <gene/go association file>
   -p --pval <number> p value cutoff (default: 0.05)
   -o --output <output file>
-  -v --version display GCEN++ version
+  -v --version display GCEN version
   -h --help print help information
 examples:
   enrich -e ../sample_data/enrichment_gene.list -b ../sample_data/background_gene.list -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -p 0.05 -o ../sample_data/enrichment.go
@@ -186,11 +189,11 @@ options:
 example:
   generate_expr_matrix_from_rsem -i ../sample_data/rsem/rsem_sample.txt -o ../sample_data/rsem/rsem_gene_expr.tsv
 
-generate_expr_matrics_from_stringtie
+generate_expr_matrix_from_stringtie
 description:
-  The program generate_expr_matrics_from_stringtie generate gene expression matrix from StringTie outputs.
+  The program generate_expr_matrix_from_stringtie generate gene expression matrix from StringTie outputs.
 usage:
-  generate_expr_matrics_from_stringtie -i input_file -o output_file
+  generate_expr_matrix_from_stringtie -i input_file -o output_file
 options:
   -i --input <input file> a text file with sample ID and path to its GTF file on each line
   -o --output <output file>
@@ -205,7 +208,7 @@ example:
 ```
 Step 1: data pretreatment
 ./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m upqt
-./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -m 0.0830342 -s 0.0987541
+./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -p 0.75
 
 Step 2: co-expression network construction
 ./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f y -t 6

@@ -6,7 +6,7 @@
 
 
 void network_merge_help() {
-  std::cout << "GCEN 0.5.0 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
   std::cout << "network_merge usage:\n";
   std::cout << "  network_merge -i input_files -o output_file\n";
   std::cout << "options:\n";
@@ -87,14 +87,17 @@ int main(int argc, char* argv[]) {
       return -1;
     }
 
-    std::string lineString;
-    while (getline(network_file, lineString)) {
-      strim(lineString);
-      std::vector <std::string> item;
-      split_string(lineString, item, "\t");
-      std::string gene_a = item[0];
-      std::string gene_b = item[1];
-      double cor = std::stod(item[2]);
+    std::string line;
+    while (getline(network_file, line)) {
+      strim(line);
+      if (line[0] == '#') {
+        continue;
+      }
+      std::vector <std::string> str_vec;
+      split_string(line, str_vec, "\t");
+      std::string gene_a = str_vec[0];
+      std::string gene_b = str_vec[1];
+      double cor = std::stod(str_vec[2]);
 
       if (gene_a.compare(gene_b) > 0) {
         std::string tmp = gene_a;
