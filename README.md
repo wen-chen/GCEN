@@ -25,6 +25,12 @@ GCEN is an open source software under the GPLv3 license. We provide source code 
 
 [gcen-0.5.1-source.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-source.tar.gz)  
 
+For Linux user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Windows and macOS will be supported soon.
+```
+conda install -c bioconda gcen
+```
+
+
 #### Usage  
 ```
 data_norm
