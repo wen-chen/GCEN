@@ -1,12 +1,15 @@
 ## GCEN: an easy toolkit of Gene Co-Expression Network analysis for lncRNA annotation  
 
-[![release version](https://img.shields.io/github/v/release/wen-chen/gcen)](https://www.biochen.com/gcen)
+[![platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20macOS%20%7C%20Windows-yellowgreen)](https://www.biochen.org/gcen/)
+[![release version](https://img.shields.io/github/v/release/wen-chen/gcen)](https://www.biochen.org/gcen)
 ![license GPL-3.0](https://img.shields.io/github/license/wen-chen/gcen)
 ![build](https://img.shields.io/travis/com/wen-chen/gcen)
-[![Bioconda](https://img.shields.io/conda/dn/bioconda/gcen.svg?label=Bioconda)](https://anaconda.org/bioconda/gcen)
+[![Bioconda](https://img.shields.io/conda/dn/bioconda/gcen.svg?label=bioconda)](https://anaconda.org/bioconda/gcen)
+[![star](https://img.shields.io/github/stars/wen-chen/gcen?style=social)](https://github.com/wen-chen/gcen/stargazers)
+![GitHub issues](https://img.shields.io/github/issues/wen-chen/gcen)
 
 #### Introduction  
-![](https://www.biochen.com/gcen/image/workflow.png)  
+![](https://www.biochen.org/gcen/image/workflow.png)  
 GCEN is a command-line toolkit that allows biologists to easily build gene co-expression network and predict gene function, especially in RNA-Seq research or lncRNA annotation. GCEN is primarily designed to be used in lncRNA annotation, but is not limited to those scenarios. It is an efficient and easy-to-use solution that will allow everyone to perform gene co-expression network analysis without sophisticated programming skills. The recommended pipeline consists of four parts: data pretreatment, network construction, module identification, and function annotation. A README file and sample data are included in the software package. Because of its modular design, the GCEN can be easily integrated into another pipeline. Also, the multithreaded implementation of GCEN makes it fast and efficient for RNA-Seq data.
 
 #### Highlights  
@@ -17,13 +20,13 @@ GCEN is a command-line toolkit that allows biologists to easily build gene co-ex
 #### Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.5.1-linux-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-linux-x86_64.tar.gz)  
+[gcen-0.5.1-linux-x86_64.tar.gz](https://www.biochen.org/gcen/download/gcen-0.5.1-linux-x86_64.tar.gz)  
 
-[gcen-0.5.1-macOS-x86_64.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-macOS-x86_64.tar.gz)  
+[gcen-0.5.1-macOS-x86_64.tar.gz](https://www.biochen.org/gcen/download/gcen-0.5.1-macOS-x86_64.tar.gz)  
 
-[gcen-0.5.1-windows-x86_64.zip](https://www.biochen.com/gcen/download/gcen-0.5.1-windows-x86_64.zip)  
+[gcen-0.5.1-windows-x86_64.zip](https://www.biochen.org/gcen/download/gcen-0.5.1-windows-x86_64.zip)  
 
-[gcen-0.5.1-source.tar.gz](https://www.biochen.com/gcen/download/gcen-0.5.1-source.tar.gz)  
+[gcen-0.5.1-source.tar.gz](https://www.biochen.org/gcen/download/gcen-0.5.1-source.tar.gz)  
 
 For Linux user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Windows and macOS will be supported soon.
 ```
@@ -240,4 +243,4 @@ rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene
 To understand the format of the input and output files for each program, please take a look at the sample data included in the software package.  
 
 #### Contact  
-Wen Chen,     Ph.D. Candidate,     chenwen@biochen.com
+Wen Chen,     Ph.D. Candidate,     chenwen@biochen.org
