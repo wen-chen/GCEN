@@ -5,7 +5,7 @@
 
 
 void rwr_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "rwr usage:\n";
   std::cout << "  rwr -n input_network -g gene_list -o output_result\n";
   std::cout << "options:\n";
@@ -27,7 +27,7 @@ void rwr_help() {
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     rwr_help();
-    return -1;
+    return 0;
   }
 
   // get option

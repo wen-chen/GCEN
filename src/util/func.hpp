@@ -13,10 +13,13 @@
 #include <cstdio>
 #include "strim.hpp"
 
+std::string version = "GCEN 0.5.2 by Wen Chen (chenwen@biochen.org, https://www.biochen.org/gcen)\n";
+
 
 void display_version() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
 }
+
 
 double string_to_log(const std::string & a_str, size_t * idx = 0) {
   double a_double = std::stod(a_str, idx);

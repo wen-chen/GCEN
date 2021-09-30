@@ -4,15 +4,15 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <experimental/filesystem> // -std=c++17 -lstdc++fs
 #include <thread> // Multithreading
+#include "third_party/ghc/filesystem.hpp"
 #include "util/func.hpp"
 #include "util/enrich_util.hpp"
 #include "util/hypergeometric_p_value.hpp"
 
 
 void go_annot_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "annotate usage:\n";
   std::cout << "  annotate -g go-basic.obo -a gene_go_association_file -n input_network -o out_dir\n";
   std::cout << "options:\n";
@@ -71,7 +71,7 @@ void module_kegg_annotate(int n, int thread_num, std::vector <std::unordered_set
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     go_annot_help();
-    return -1;
+    return 0;
   }
 
   // get options
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
     propagate(assoc_map, go_term_map);
 
     // mkdir
-    std::experimental::filesystem::create_directories(out_dir);
+    ghc::filesystem::create_directories(out_dir);
 
     // annotation
     std::unordered_set <std::string> background_gene_set;
@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
     assoc_parser(assoc_file_name, K_map, assoc_map);
 
     // mkdir
-    std::experimental::filesystem::create_directories(out_dir);
+    ghc::filesystem::create_directories(out_dir);
 
     // annotate
     std::unordered_set <std::string> background_gene_set;

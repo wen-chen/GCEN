@@ -8,4 +8,4 @@ os:
 
 
 script:
-  - make linux
+  - make

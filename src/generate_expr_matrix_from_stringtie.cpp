@@ -10,7 +10,7 @@
 
 
 void stringtie_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "generate_expr_matrix_from_stringtie usage:\n";
   std::cout << "  generate_expr_matrix_from_stringtie -i input_file -o output_file\n";
   std::cout << "options:\n";
@@ -32,7 +32,7 @@ void read_sample_file(std::string sample_file_name, int i, std::string flag,
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     stringtie_help();
-    return -1;
+    return 0;
   }
 
   // get option

@@ -21,14 +21,15 @@ class RWR_result {
  public:
   std::string gene;
   double prob;
-
-  bool operator < (const RWR_result & another) {
-    if (prob > another.prob) {
-      return true;
-    }
-    return false;
-  }
 };
+
+
+bool operator < (const RWR_result & a, const RWR_result & b) {
+  if (a.prob > b.prob) {
+    return true;
+  }
+  return false;
+}
 
 
 int rwr(Dynamic_Matrix & W, Dynamic_Vector & P0, double gamma, std::vector <std::string> & gene_vec, Dynamic_Vector & PT) {

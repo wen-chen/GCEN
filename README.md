@@ -1,4 +1,4 @@
-## GCEN: an easy toolkit of Gene Co-Expression Network analysis for lncRNA annotation  
+## GCEN: an easy toolkit of Gene Co-Expression Network analysis for lncRNAs annotation  
 
 [![platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20macOS%20%7C%20Windows-yellowgreen)](https://www.biochen.org/gcen/)
 [![release version](https://img.shields.io/github/v/release/wen-chen/gcen)](https://www.biochen.org/gcen)

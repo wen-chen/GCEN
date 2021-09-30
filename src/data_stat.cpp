@@ -6,7 +6,7 @@
 
 
 void data_stat_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "data_stat usage:\n";
   std::cout << "  data_stat -i input_file\n";
   std::cout << "options:\n";
@@ -21,7 +21,7 @@ void data_stat_help() {
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     data_stat_help();
-    return -1;
+    return 0;
   }
 
   // get option

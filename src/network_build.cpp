@@ -12,7 +12,7 @@
 
 
 void network_build_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "network_build usage:\n";
   std::cout << "  network_build -i gene_expression_file -o co_expression_network_file\n";
   std::cout << "options:\n";
@@ -45,7 +45,7 @@ void ThreadFunc_FDR(int n, int thread_num, int GeneNum, int SampleNum, std::vect
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     network_build_help();
-    return -1;
+    return 0;
   }
 
   // get option

@@ -5,7 +5,7 @@
 
 
 void data_norm_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "data_norm usage:\n";
   std::cout << "  data_norm -i input_file -o output_file -m normalization_method\n";
   std::cout << "options:\n";
@@ -22,7 +22,7 @@ void data_norm_help() {
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     data_norm_help();
-    return -1;
+    return 0;
   }
 
   // get option

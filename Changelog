@@ -1,3 +1,7 @@
+v0.5.2
+    Support download via bioconda;
+    Use ghc::filesystem instead of std::filesystem for the cross-platform compatibility.
+
 v0.5.1
     Use robin_hood::unordered_map instead of std::unordered_map for performance improvement;
     The program rwr adds support for the weights and direction of the network;

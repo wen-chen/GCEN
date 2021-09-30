@@ -6,7 +6,7 @@
 
 
 void network_merge_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "network_merge usage:\n";
   std::cout << "  network_merge -i input_files -o output_file\n";
   std::cout << "options:\n";
@@ -22,7 +22,7 @@ void network_merge_help() {
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     network_merge_help();
-    return -1;
+    return 0;
   }
 
   // get option

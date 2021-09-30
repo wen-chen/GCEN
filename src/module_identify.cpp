@@ -16,7 +16,7 @@ static std::mutex mutex_lock;
 
 
 void module_identify_help() {
-  std::cout << "GCEN 0.5.1 by Wen Chen (chenwen@biochen.com, https://www.biochen.com/gcen)\n";
+  std::cout << version;
   std::cout << "module_identify usage:\n";
   std::cout << "  module_identify -i input_file -o output_file\n";
   std::cout << "options:\n";
@@ -128,7 +128,7 @@ void ThreadFunc(int n, int thread_num, std::vector <std::string> & node_vec,
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     module_identify_help();
-    return -1;
+    return 0;
   }
 
   // get option

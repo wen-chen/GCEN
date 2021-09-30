@@ -53,40 +53,41 @@ class GO_result {
   int pop_count;
   int pop_n;
   double p_val;
-
-  bool operator < (const GO_result & another) {
-    int rank1, rank2;
-    if (name_space == "biological_process") {
-      rank1 = 1;
-    } else if (name_space == "molecular_function") {
-      rank1 = 2;
-    } else if (name_space == "cellular_component") {
-      rank1 = 3;
-    } else {
-      rank1 = 4;
-    }
-    if (another.name_space == "biological_process") {
-      rank2 = 1;
-    } else if (another.name_space == "molecular_function") {
-      rank2 = 2;
-    } else if (another.name_space == "cellular_component") {
-      rank2 = 3;
-    } else {
-      rank2 = 4;
-    }
-
-    if (rank1 < rank2) {
-      return true;
-    } else if (rank1 == rank2) {
-      if (p_val < another.p_val) {
-        return true;
-      }
-    } 
-
-    return false;
-  }
-  
 };
+
+
+bool operator < (const GO_result & a, const GO_result & b) {
+  int rank1, rank2;
+  if (a.name_space == "biological_process") {
+    rank1 = 1;
+  } else if (a.name_space == "molecular_function") {
+    rank1 = 2;
+  } else if (a.name_space == "cellular_component") {
+    rank1 = 3;
+  } else {
+    rank1 = 4;
+  }
+  if (b.name_space == "biological_process") {
+    rank2 = 1;
+  } else if (b.name_space == "molecular_function") {
+    rank2 = 2;
+  } else if (b.name_space == "cellular_component") {
+    rank2 = 3;
+  } else {
+    rank2 = 4;
+  }
+
+  if (rank1 < rank2) {
+    return true;
+  } else if (rank1 == rank2) {
+    if (a.p_val < b.p_val) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 
 class KO_result {
  public:
@@ -98,14 +99,15 @@ class KO_result {
   int pop_count;
   int pop_n;
   double p_val;
-
-  bool operator < (const KO_result & another) {
-    if (p_val < another.p_val) {
-      return true;
-    }
-    return false;
-  }
 };
+
+
+bool operator < (const KO_result & a, const KO_result & b) {
+  if (a.p_val < b.p_val) {
+    return true;
+  }
+  return false;
+}
 
 
 void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO_term> & go_term_map) {
