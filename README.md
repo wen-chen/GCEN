@@ -35,8 +35,11 @@ conda install gcen -c bioconda
 
 
 #### Usage  
+##### Main programs  
+<details>
+<summary>data_norm</summary>
+
 ```
-data_norm
 description:
   The program data_norm normalizes the gene expression data.
 usage:
@@ -49,8 +52,14 @@ options:
   -h --help print help information
 example:
   data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m upqt
+```
 
-data_filter
+</details>
+
+<details>
+<summary>data_filter</summary>
+
+```
 description:
   The program data_filter filter genes according to the their expression mean and standard deviation.
 usage:
@@ -66,8 +75,14 @@ options:
   -h --help print help information
 example:
   data_filter -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_filter.tsv -p 0.75
+```
 
-network_build
+</details>
+
+<details>
+<summary>network_build</summary>
+
+```
 description:
   The program network_build construct gene co-expression network using gene expression matrix.
 usage:
@@ -86,8 +101,14 @@ options:
   -h --help print help information
 example:
   network_build -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -f y
+```
 
-module_identify
+</details>
+
+<details>
+<summary>module_identify</summary>
+
+```
 description:
   The program identify the gene modules using the gene co-expression network.
 usage:
@@ -101,8 +122,14 @@ options:
   -h --help print help information
 example:
   module_identify -i ../sample_data/gene_co_expr.network -o ../sample_data/module.txt
+```
 
-annotate
+</details>
+
+<details>
+<summary>annotate</summary>
+
+```
 description:
   The program annotate can perform GO/KEGG annotation based on network or module.
 usage:
@@ -123,8 +150,14 @@ examples:
   ./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -m ../sample_data/module.txt -o ../sample_data/module_go_annotation
   ./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
   ./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -m ./sample_data/module.txt -o ../sample_data/module_kegg_annotation
+```
 
-rwr
+</details>
+
+<details>
+<summary>rwr</summary>
+
+```
 description:
   The program rwr can predict potential funcation associated genes based on RWR (Random Walk with Restart) algorithm.
 usage:
@@ -142,8 +175,16 @@ options:
   -h --help print help information
 example:
   rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_seed_genes.list -o ../sample_data/rwr_ranked_gene.tsv
+```
 
-data_stat
+</details>
+
+##### Utilities  
+
+<details>
+<summary>data_stat</summary>
+
+```
 description:
   The program data_stat calculate the statistics of gene expression matrix.
 usage:
@@ -154,8 +195,14 @@ options:
   -h --help print help information
 example:
   data_stat -i ../sample_data/gene_expr.tsv
+```
 
-network_merge
+</details>
+
+<details>
+<summary>network_merge</summary>
+
+```
 description:
   The program network_merge merge two or more networks.
 usage:
@@ -167,8 +214,14 @@ options:
   -h --help print help information
 example:
   network_merge -i ../sample_data/test_1.network,../sample_data/test_2.network -o ../sample_data/test_merge.network
+```
 
-enrich
+</details>
+
+<details>
+<summary>enrich</summary>
+
+```
 description:
   The program enrich can perform GO/KEGG enrichment.
 usage:
@@ -186,8 +239,14 @@ options:
 examples:
   enrich -e ../sample_data/enrichment_gene.list -b ../sample_data/background_gene.list -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -p 0.05 -o ../sample_data/enrichment.go
   enrich -e ../sample_data/enrichment_gene.list -b ../sample_data/background_gene.list -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -p 0.05 -o ../sample_data/enrichment.kegg
+```
 
-generate_expr_matrix_from_rsem
+</details>
+
+<details>
+<summary>generate_expr_matrix_from_rsem</summary>
+
+```
 description:
   The program generate_expr_matrix_from_rsem generate gene expression matrix from RSEM outputs.
 usage:
@@ -200,8 +259,14 @@ options:
   -h --help print help information
 example:
   generate_expr_matrix_from_rsem -i ../sample_data/rsem/rsem_sample.txt -o ../sample_data/rsem/rsem_gene_expr.tsv
+```
 
-generate_expr_matrix_from_stringtie
+</details>
+
+<details>
+<summary>generate_expr_matrix_from_stringtie</summary>
+
+```
 description:
   The program generate_expr_matrix_from_stringtie generate gene expression matrix from StringTie outputs.
 usage:
@@ -216,19 +281,45 @@ example:
   generate_expr_matrix_from_stringtie -i ../sample_data/stringtie/stringtie_sample.txt -o ../sample_data/stringtie/stringtie_gene_expr.tsv
 ```
 
+</details>
+
+
 #### Recommended pipeline  
+
+<details>
+<summary>Step 1: data pretreatment
+</summary>
+
 ```
-Step 1: data pretreatment
 ./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m upqt
 ./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -p 0.75
+```
 
-Step 2: co-expression network construction
+</details>
+
+<details>
+<summary>Step 2: co-expression network construction
+</summary>
+
+```
 ./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f y -t 6
+```
 
-Step 3: module identification (optional)
+</details>
+
+<details>
+<summary>Step 3: module identification (optional)</summary>
+
+```
 ./module_identify -i ../sample_data/gene_co_expr.network -o ../sample_data/module.txt -s 0.5 -t 6
+```
 
-Step 4: function annotation
+</details>
+
+<details>
+<summary>Step 4: function annotation</summary>
+
+```
 network based annotation
 ./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_go_annotation
 ./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
@@ -239,8 +330,11 @@ identify genes with specific functions based on RWR (optional)
 rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene.list -o ../sample_data/rwr_result.tsv
 ```
 
+</details>
+
+
 #### Data format  
 To understand the format of the input and output files for each program, please take a look at the sample data included in the software package.  
 
 #### Contact  
-Wen Chen,     Ph.D. Candidate,     chenwen@biochen.org
+We appreciate your interest in our work. For further information or if you have any questions, please do not hesitate to contact us (Wen Harold Chen, chenwen@biochen.org).
