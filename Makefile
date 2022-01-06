@@ -31,3 +31,5 @@ all:
 	$(CXX) src/enrich.cpp -o $(PREFIX)/util/enrich $(CCFLAGS)
 	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o $(PREFIX)/util/generate_expr_matrix_from_rsem $(CCFLAGS)
 	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o $(PREFIX)/util/generate_expr_matrix_from_stringtie $(CCFLAGS)
+	$(CXX) src/csv_to_tsv.cpp -o $(PREFIX)/util/csv_to_tsv $(CCFLAGS)
+	$(CXX) src/tsv_to_csv.cpp -o $(PREFIX)/util/tsv_to_csv $(CCFLAGS)

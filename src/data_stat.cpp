@@ -1,7 +1,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <algorithm>
-#include "util/func.hpp"
+#include "util/base.hpp"
 #include "util/strim.hpp"
 
 

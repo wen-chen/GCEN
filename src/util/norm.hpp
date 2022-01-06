@@ -1,11 +1,11 @@
-#ifndef __NORM_UTIL_H_
-#define __NORM_UTIL_H_
+#ifndef __NORM_H_
+#define __NORM_H_
 
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include "func.hpp"
+#include "base.hpp"
 
 
 double calc_weighted_factor(const std::vector <double>& obs, const std::vector <double>& ref,
@@ -90,7 +90,7 @@ void norm_tmm(std::vector <std::vector <double>> & matrix) {
     factor_vec[i] = factor_vec[i] / _d;
     // std::cout << factor_vec[i] << std::endl;
   }
-  
+
   // norm
   for (unsigned i = 0; i < matrix.size(); ++i) {
     for (unsigned j = 0; j < matrix[i].size(); ++j) {
@@ -144,7 +144,7 @@ void norm_median(std::vector <std::vector <double>> & matrix) {
     median_vec.push_back(median(non_zeros));
   }
   double median_mean = mean(median_vec);
-  
+
   // calc norm factors
   std::vector <double> factor_vec;
   for (unsigned int i = 0; i < median_vec.size(); ++i) {
@@ -158,6 +158,7 @@ void norm_median(std::vector <std::vector <double>> & matrix) {
     }
   }
 }
+
 
 void norm_deseq(std::vector <std::vector <double>> & matrix) {
   //对每一行的数据求几何平均数，如果该行的几何平均数不为零（即该行所有值都不为零），则该行每个数据除以几何平均数，得到一个比例数的矩阵。
@@ -192,6 +193,40 @@ void norm_deseq(std::vector <std::vector <double>> & matrix) {
   for (unsigned i = 0; i < matrix.size(); ++i) {
     for (unsigned j = 0; j < matrix[i].size(); ++j) {
       matrix[i][j] = matrix[i][j] / factor_vec[j];
+    }
+  }
+}
+
+void norm_hkg(std::vector <std::vector <double>> & matrix, const std::vector <bool> & hkg_vec) {
+  // calc median of housekeeping gene expression
+  std::vector <double> hkg_val_median_vec;
+  unsigned int col_n = matrix[0].size();
+  for (unsigned int j = 0; j < col_n; ++j) {
+    std::vector <double> hkg_val_vec;
+    for (unsigned int i = 0; i < hkg_vec.size(); ++i) {
+      if (hkg_vec[i]) {
+        double hkg_val = matrix[i][j];
+        hkg_val_vec.push_back(hkg_val);
+      }
+    }
+    double hkg_val_median = median(hkg_val_vec);
+    hkg_val_median_vec.push_back(hkg_val_median);
+  }
+
+  // calc norm factors
+  double mean_of_hkg_val_median = mean(hkg_val_median_vec);
+
+  std::vector <double> factor_vec;
+  for (unsigned int i = 0; i < hkg_val_median_vec.size(); ++i) {
+    double factor = mean_of_hkg_val_median / hkg_val_median_vec[i];
+    std::cout << factor << std::endl;
+    factor_vec.push_back(factor);
+  }
+
+  // norm
+  for (unsigned i = 0; i < matrix.size(); ++i) {
+    for (unsigned j = 0; j < matrix[i].size(); ++j) {
+      matrix[i][j] = matrix[i][j] * factor_vec[j];
     }
   }
 }

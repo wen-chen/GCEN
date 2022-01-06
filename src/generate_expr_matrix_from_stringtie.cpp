@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "util/strim.hpp"
-#include "util/func.hpp"
+#include "util/base.hpp"
 
 
 void stringtie_help() {
@@ -24,7 +24,7 @@ void stringtie_help() {
 }
 
 
-void read_sample_file(std::string sample_file_name, int i, std::string flag,
+void read_sample_file(std::string sample_file_name, unsigned int i, std::string flag,
     std::unordered_map<std::string, std::unordered_set <std::string>> &gene_map,
     std::unordered_map<std::string, std::vector <std::string>> &transcript_map);
 
@@ -103,6 +103,10 @@ int main(int argc, char* argv[]) {
     strim(line);
     std::vector <std::string> str_vec;
     split_string(line, str_vec, "\t");
+    if (str_vec.size() != 2) {
+      std::cerr << "Error: The format of the input file does not meet the requirements!" << in_file_name << ".\n";
+      exit(-1);
+    }
     std::string sample_id = str_vec[0];
     std::string sample_file_name = str_vec[1];
     sample_id_vec.push_back(sample_id);
@@ -169,7 +173,7 @@ std::string pretend_regex(const std::string &str, const std::string &pattern) {
 }
 
 
-void push_record(int i, std::string &gene_id, std::string &expr_val, 
+void push_record(unsigned int i, std::string &gene_id, std::string &expr_val, 
     std::unordered_map<std::string, std::vector <std::string>> &gene_map) {
   if (i > 0) { // check file consistency
     if (gene_map.find(gene_id) == gene_map.end()) {
@@ -188,7 +192,7 @@ void push_record(int i, std::string &gene_id, std::string &expr_val,
 }
 
 
-void read_sample_file(std::string sample_file_name, int i, std::string flag,
+void read_sample_file(std::string sample_file_name, unsigned int i, std::string flag,
     std::unordered_map<std::string, std::unordered_set <std::string>> &gene_map,
     std::unordered_map<std::string, std::vector <std::string>> &transcript_map) {
   std::ifstream sample_file(sample_file_name, std::ios::in);

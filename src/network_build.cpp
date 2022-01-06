@@ -7,8 +7,9 @@
 #include <utility>
 #include <ctime>
 #include <chrono>
-#include "util/Pearson.hpp"
-#include "util/func.hpp"
+#include "util/base.hpp"
+#include "util/pearson.hpp"
+#include "util/fdr.hpp"
 
 
 void network_build_help() {
@@ -23,12 +24,13 @@ void network_build_help() {
   std::cout << "  -t --thread <number> cpu cores (default: 2)\n";
   std::cout << "  -p --pval <number> p value cutoff (default: 0.001)\n";
   std::cout << "  -c --cor <number> correlation coefficient cutoff (default: 0.1)\n";
-  std::cout << "  -s --signed <y or n> singed network (default: n)\n";
-  std::cout << "  -f --fdr <y or n> calculate FDR (default: n)\n";
+  std::cout << "  -s --signed singed network (default: unsinged)\n";
+  std::cout << "  -f --fdr calculate FDR (default: not calculated)\n";
+  std::cout << "  -a --all output all edges without any cutoff (if -a is specified, the -p and -c are ignored)\n";
   std::cout << "  -v --version display GCEN version\n";
   std::cout << "  -h --help print help information\n";
   std::cout << "example:\n";
-  std::cout << "  network_build -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -f y\n";
+  std::cout << "  network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f\n";
 }
 
 
@@ -56,13 +58,17 @@ int main(int argc, char* argv[]) {
   int thread_num = 2;
   double cor_cutoff = 0.1;
   double pval_cutoff = 0.001;
-  std::string fdr_opt = "";
-  std::string signed_opt = "";
-    
-  const char * const short_opts = "hvi:o:m:l:t:p:c:f:s:";
+  bool fdr = false;
+  bool signed_network = false;
+  bool if_all = false;
+
+  const char * const short_opts = "hvfsai:o:m:l:t:p:c:";
   const struct option long_opts[] =  {
     { "help", 0, NULL, 'h' },
     { "version", 0, NULL, 'v' },
+    { "fdr", 0, NULL, 'f' },
+    { "signed", 0, NULL, 's' },
+    { "all", 0, NULL, 'a' },
     { "input", 1, NULL, 'i' },
     { "output", 1, NULL, 'o' },
     { "method", 1, NULL, 'm' },
@@ -70,8 +76,6 @@ int main(int argc, char* argv[]) {
     { "thread", 1, NULL, 't' },
     { "pval", 1, NULL, 'p' },
     { "cor", 1, NULL, 'c' },
-    { "fdr", 1, NULL, 'f' },
-    { "signed", 1, NULL, 's' },
     { NULL, 0, NULL, 0 }
   };
   int opt = getopt_long(argc, argv, short_opts, long_opts, NULL);
@@ -83,6 +87,15 @@ int main(int argc, char* argv[]) {
       case 'v':
         display_version();
         return 0;
+      case 'f':
+        fdr = true;
+        break;
+      case 's':
+        signed_network = true;
+        break;
+      case 'a':
+        if_all = true;
+        break;
       case 'o':
         out_file_name = optarg;
         break;
@@ -103,12 +116,6 @@ int main(int argc, char* argv[]) {
         break;
       case 'c':
         cor_cutoff = std::stod(optarg);
-        break;
-      case 'f':
-        fdr_opt = optarg;
-        break;
-      case 's':
-        signed_opt = optarg;
         break;
       case '?':
         network_build_help();
@@ -132,11 +139,6 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  bool fdr = false;
-  if (fdr_opt == "y" or fdr_opt == "Y") {
-    fdr = true;
-  }
-  
   bool if_log = false;
   bool if_log2 = false;
   bool if_log10 = false;
@@ -148,15 +150,16 @@ int main(int argc, char* argv[]) {
     if_log10 = true;
   }
 
-  bool signed_network = false;
-  if (signed_opt == "y" or signed_opt == "Y") {
-    signed_network = true;
+  if (if_all) {
+    cor_cutoff = 0.0;
+    pval_cutoff = 1.0;
   }
 
-  // read file	
+  // read file
+  std::vector <std::string> annotation_vec;
   std::vector <std::string> GeneNameVector;
   std::vector <std::vector <double> > GeneDataFrame;
-  load(in_file_name, GeneNameVector, GeneDataFrame, if_log, if_log2, if_log10);
+  load(in_file_name, annotation_vec, GeneNameVector, GeneDataFrame, if_log, if_log2, if_log10);
 
   // get ranks
   int GeneNum = GeneNameVector.size();
@@ -182,7 +185,6 @@ int main(int argc, char* argv[]) {
     std::vector <double> p_values;
 
     // multi-thread
-
     std::vector <std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {
       threads.push_back(std::thread{ ThreadFunc_FDR, i, thread_num, GeneNum, SampleNum, std::ref(GeneDataFrame),
@@ -200,7 +202,7 @@ int main(int argc, char* argv[]) {
     calc_fdr(p_values, fdrs, max_edges);
 
     // output
-    out_file << "#Node1\tNode2\tCorrelation\tPvalue\tFDR\n";
+    out_file << "#node1\tnode2\tcorrelation\tp-value\tFDR\n";
     for (unsigned int i = 0; i <  p_values.size(); ++i) {
       std::string line = GeneNameVector[node_id_pairs[i].first] + '\t' + GeneNameVector[node_id_pairs[i].second]
                          + '\t' + std::to_string(corrs[i]) + '\t' + double_to_string(p_values[i]) + '\t'
@@ -208,7 +210,7 @@ int main(int argc, char* argv[]) {
       out_file << line;
     }
   } else { // non-fdr
-    out_file << "#Node1\tNode2\tCorrelation\tPvalue\tFDR\n";
+    out_file << "#node1\tnode2\tcorrelation\tp-value\n";
     // multi-thread
     std::vector <std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {
@@ -243,7 +245,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < pval_cutoff and std::abs(corr) > cor_cutoff) {
+      if (prob <= pval_cutoff and std::abs(corr) >= cor_cutoff) {
         std::string item = GeneNameVector[i] + '\t' + GeneNameVector[j] + '\t' + std::to_string(corr) + '\t'
                            + double_to_string(prob) + '\n';
         tmp.push_back(item);
@@ -269,7 +271,7 @@ void ThreadFunc(int n, int thread_num, int GeneNum, int SampleNum, std::vector <
         continue;
       }
       double prob = get_p_value(corr, SampleNum);
-      if (prob < pval_cutoff and std::abs(corr) > cor_cutoff) {
+      if (prob <= pval_cutoff and std::abs(corr) >= cor_cutoff) {
         std::string item = GeneNameVector[i] + '\t' + GeneNameVector[j] + '\t' + std::to_string(corr) + '\t'
                            + double_to_string(prob) + '\n';
         tmp.push_back(item);

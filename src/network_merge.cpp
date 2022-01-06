@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include <fstream>
-#include "util/func.hpp"
+#include "util/base.hpp"
 
 
 void network_merge_help() {

@@ -1,7 +1,7 @@
 #include <getopt.h>
 #include <algorithm> // sort rwr result
-#include "util/func.hpp"
-#include "util/rwr_util.hpp"
+#include "util/base.hpp"
+#include "util/rwr.hpp"
 
 
 void rwr_help() {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Random walk " << step << " steps." << std::endl;
 
   std::vector <RWR_result> rwr_result_vec;
-  for (int i = 0; i < gene_vec.size(); ++i) {
+  for (unsigned int i = 0; i < gene_vec.size(); ++i) {
     if (PT[i] > prob_cutoff) {
       RWR_result rwr_result;
       rwr_result.gene = gene_vec[i];

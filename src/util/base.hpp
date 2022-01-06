@@ -1,5 +1,5 @@
-#ifndef __FUNC_H_
-#define __FUNC_H_
+#ifndef __BASE_H_
+#define __BASE_H_
 
 
 #include <stdexcept> // exception handling
@@ -13,7 +13,7 @@
 #include <cstdio>
 #include "strim.hpp"
 
-std::string version = "GCEN 0.5.2 by Wen Chen (chenwen@biochen.org, https://www.biochen.org/gcen)\n";
+std::string version = "GCEN 0.6.0 by Wen Chen (chenwen@biochen.org, https://www.biochen.org/gcen)\n";
 
 
 void display_version() {
@@ -42,8 +42,9 @@ double string_to_log10(const std::string & a_str, size_t * idx = 0) {
 }
 
 
-void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
-    std::vector <std::vector <double> > & GeneDataFrame, bool if_log = false, bool if_log2 = false, bool if_log10 = false) {
+void load(std::string & in_file_name, std::vector <std::string> & annotation_vec,
+    std::vector <std::string> & GeneNameVector, std::vector <std::vector <double> > & GeneDataFrame,
+    bool if_log = false, bool if_log2 = false, bool if_log10 = false) {
   double (* str_to_double) (const std::string &, size_t *) = std::stod;
   if (if_log) {
     str_to_double = string_to_log;
@@ -54,17 +55,18 @@ void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
   if (if_log10) {
     str_to_double = string_to_log10;
   }
-  std::ifstream inFile(InFileName, std::ios::in);
-  if (!inFile.good()) {
-    std::cerr << "Error while opening " << InFileName << ".\n";
+
+  std::ifstream in_file(in_file_name, std::ios::in);
+  if (!in_file.good()) {
+    std::cerr << "Error while opening " << in_file_name << ".\n";
     exit(-1);
   }
 
   std::string line;
-  while (getline(inFile, line)) {
+  while (getline(in_file, line)) {
     strim(line);
     if (line[0] == '#') {
-      continue;
+      annotation_vec.push_back(line);
     }
     std::vector <double> line_list;
     std::stringstream slineString;
@@ -86,8 +88,8 @@ void load(std::string & InFileName, std::vector <std::string> & GeneNameVector,
       slineString.clear();
     }
   }
-  
-  inFile.close();
+
+  in_file.close();
 }
 
 

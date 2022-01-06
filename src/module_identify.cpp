@@ -8,7 +8,7 @@
 #include <thread>
 #include <mutex>
 #include "third_party/robin_hood.h"
-#include "util/func.hpp"
+#include "util/base.hpp"
 #include "util/strim.hpp"
 
 

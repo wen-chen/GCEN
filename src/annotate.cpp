@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <thread> // Multithreading
 #include "third_party/ghc/filesystem.hpp"
-#include "util/func.hpp"
-#include "util/enrich_util.hpp"
+#include "util/base.hpp"
+#include "util/enrich.hpp"
 #include "util/hypergeometric_p_value.hpp"
 
 

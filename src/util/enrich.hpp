@@ -1,5 +1,5 @@
-#ifndef __GO_UTIL_H_
-#define __GO_UTIL_H_
+#ifndef __ENRICH_H_
+#define __ENRICH_H_
 
 
 #include <cstdlib> // Needed to use the exit function
@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
-#include "func.hpp"
+#include "base.hpp"
 #include "strim.hpp"
 
 

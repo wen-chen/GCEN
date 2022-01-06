@@ -1,5 +1,5 @@
-#ifndef __RWR_UTIL_H_
-#define __RWR_UTIL_H_
+#ifndef __RWR_H_
+#define __RWR_H_
 
 
 #include <fstream>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib> // needed to use the exit() function
-#include "func.hpp"
+#include "base.hpp"
 #include "strim.hpp"
 #include "../third_party/robin_hood.h"
 #include "../third_party/Eigen3.3.7/Dense"
@@ -116,9 +116,9 @@ void load_network(std::string & network_file_name, bool if_directed_network, boo
 void network_2_matrix(std::vector <std::string> & gene_vec,
     robin_hood::unordered_map <std::string, robin_hood::unordered_map <std::string, double>> & network, 
     Dynamic_Matrix & matrix) {
-  for (int i = 0; i < gene_vec.size(); ++i) {
+  for (unsigned int i = 0; i < gene_vec.size(); ++i) {
     matrix(i, i) = 0.0;
-    for (int j = i + 1; j < gene_vec.size(); ++j) {
+    for (unsigned int j = i + 1; j < gene_vec.size(); ++j) {
       std::string gene_a = gene_vec[i];
       std::string gene_b = gene_vec[j];
 
@@ -170,7 +170,7 @@ void load_gene(std::string & gene_file_name,
     gene_map[gene] = weight;
   }
 
-  for (int i = 0; i < gene_vec.size(); ++i) {
+  for (unsigned int i = 0; i < gene_vec.size(); ++i) {
     std::string gene = gene_vec[i];
     if (gene_map.find(gene) != gene_map.end()) {
       dynamic_vec[i] = gene_map[gene];

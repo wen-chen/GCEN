@@ -5,8 +5,8 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm> // sort result
-#include "util/func.hpp"
-#include "util/enrich_util.hpp"
+#include "util/base.hpp"
+#include "util/enrich.hpp"
 #include "util/hypergeometric_p_value.hpp"
 
 

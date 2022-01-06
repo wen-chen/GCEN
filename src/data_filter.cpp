@@ -1,7 +1,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <algorithm>
-#include "util/func.hpp"
+#include "util/base.hpp"
 #include "util/strim.hpp"
 
 
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
   while (getline(in_file_2, line)) {
     strim(line);
     if (line[0] == '#') {
-      continue;
+      out_file << line << '\n';
     }
     std::vector <std::string> str_vec;
     split_string(line, str_vec, "\t");

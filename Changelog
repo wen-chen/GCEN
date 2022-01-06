@@ -1,3 +1,9 @@
+v0.6.0
+    Added two programs csv_to_tsv and tsv_to_csv for converting tsv and csv files to each other;
+    The program data_norm adds an normalization method based housekeeping genes;
+    The program network_build add a new parameter -a/--all for output all edges without any cutoff;
+    Fix some bugs.
+
 v0.5.2
     Support download via bioconda;
     Use ghc::filesystem instead of std::filesystem for the cross-platform compatibility.
