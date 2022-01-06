@@ -56,11 +56,12 @@ usage:
 options:
   -i --input <input file>
   -o --output <output file>
-  -m --method <upqt/median/deseq/tmm> normalization method (default: upqt)
+  -m --method <upqt | median | deseq | tmm | hkg> normalization method (default: upqt)
+  -g --gene <housekeeping gene list>  only for '--method hkg'
   -v --version display GCEN version
   -h --help print help information
 example:
-  data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m upqt
+  data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m tmm
 ```
 
 </details>
@@ -104,12 +105,13 @@ options:
   -t --thread <number> cpu cores (default: 2)
   -p --pval <number> p value cutoff (default: 0.001)
   -c --cor <number> correlation coefficient cutoff (default: 0.1)
-  -s --signed <y or n> singed network (default: n)
-  -f --fdr <y or n> calculate FDR (default: n)
+  -s --signed singed network (default: unsinged)
+  -f --fdr calculate FDR (default: not calculated)
+  -a --all output all edges without any cutoff (if -a is specified, the -p and -c are ignored)
   -v --version display GCEN version
   -h --help print help information
 example:
-  network_build -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -f y
+  network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f
 ```
 
 </details>
@@ -189,6 +191,44 @@ example:
 </details>
 
 ### Utilities  
+
+<details>
+<summary>csv_to_tsv</summary>
+
+```
+description:
+  The program csv_to_tsv converts CSV file into TSV file.
+usage:
+  csv_to_tsv -i input.csv -o output.tsv
+options:
+  -i --input <input csv file>
+  -o --output <output tsv file>
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  csv_to_tsv -i ../sample_data/gene_expr.csv -o ../sample_data/gene_expr.tsv
+```
+
+</details>
+
+<details>
+<summary>tsv_to_csv</summary>
+
+```
+description:
+  The program csv_to_tsv converts TSV file into CSV file.
+usage:
+  tsv_to_csv -i input.tsv -o output.csv
+options:
+  -i --input <input tsv file>
+  -o --output <output csv file>
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  tsv_to_csv -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr.csv
+```
+
+</details>
 
 <details>
 <summary>data_stat</summary>
@@ -300,7 +340,7 @@ example:
 </summary>
 
 ```
-./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m upqt
+./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m tmm
 ./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -p 0.75
 ```
 
@@ -311,7 +351,7 @@ example:
 </summary>
 
 ```
-./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f y -t 6
+./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f -t 6
 ```
 
 </details>
