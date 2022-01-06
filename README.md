@@ -29,13 +29,13 @@ After gene co-expression network construction and module identification, we use 
 ## Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.5.2-linux-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.5.2/gcen-0.5.2-linux-x86_64.tar.gz)  
+[gcen-0.6.0-linux-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-linux-x86_64.tar.gz)  
 
-[gcen-0.5.2-macOS-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.5.2/gcen-0.5.2-macOS-x86_64.tar.gz)  
+[gcen-0.6.0-macOS-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-macOS-x86_64.tar.gz)  
 
-[gcen-0.5.2-windows-x86_64.zip](https://www.biochen.org/gcen/static/0.5.2/gcen-0.5.2-windows-x86_64.zip)  
+[gcen-0.6.0-windows-x86_64.zip](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-windows-x86_64.zip)  
 
-[gcen-0.5.2-source.tar.gz](https://www.biochen.org/gcen/static/0.5.2/gcen-0.5.2-source.tar.gz)  
+[gcen-0.6.0-source.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-source.tar.gz)  
 
 For Linux and macOS user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Since bioconda does not support Windows, Windows users can download the pre-built binaries directly from our website.
 ```
