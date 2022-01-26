@@ -29,13 +29,13 @@ After gene co-expression network construction and module identification, we use 
 ## Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.6.0-linux-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-linux-x86_64.tar.gz)  
+[gcen-0.6.1-linux-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.1/gcen-0.6.1-linux-x86_64.tar.gz)  
 
-[gcen-0.6.0-macOS-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-macOS-x86_64.tar.gz)  
+[gcen-0.6.1-macOS-x86_64.tar.gz](https://www.biochen.org/gcen/static/0.6.1/gcen-0.6.1-macOS-x86_64.tar.gz)  
 
-[gcen-0.6.0-windows-x86_64.zip](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-windows-x86_64.zip)  
+[gcen-0.6.1-windows-x86_64.zip](https://www.biochen.org/gcen/static/0.6.1/gcen-0.6.1-windows-x86_64.zip)  
 
-[gcen-0.6.0-source.tar.gz](https://www.biochen.org/gcen/static/0.6.0/gcen-0.6.0-source.tar.gz)  
+[gcen-0.6.1-source.tar.gz](https://www.biochen.org/gcen/static/0.6.1/gcen-0.6.1-source.tar.gz)  
 
 For Linux and macOS user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Since bioconda does not support Windows, Windows users can download the pre-built binaries directly from our website.
 ```
@@ -71,7 +71,7 @@ example:
 
 ```
 description:
-  The program data_filter filter genes according to the their expression mean and standard deviation.
+  The program data_filter filters genes according to the their expression mean and standard deviation.
 usage:
   data_filter -i input_file -o output_file
 options:
@@ -94,14 +94,14 @@ example:
 
 ```
 description:
-  The program network_build construct gene co-expression network using gene expression matrix.
+  The program network_build constructs gene co-expression network using gene expression matrix.
 usage:
-  network_build -i gene_expression_file -o co_expression_network_file
+  network_build -i gene_expr.tsv -o gene_co_expr.network
 options:
   -i --input <input file>
   -o --output <output file>
   -m --method <pearson or spearman> correlation coefficient method (default: spearman)
-  -l --log <log, log2 or log10> make a log(x+1) transformation (default: not transform)
+  -l --log <log | log2 | log10> make a log(x+1) transformation (default: not transform)
   -t --thread <number> cpu cores (default: 2)
   -p --pval <number> p value cutoff (default: 0.001)
   -c --cor <number> correlation coefficient cutoff (default: 0.1)
@@ -121,7 +121,7 @@ example:
 
 ```
 description:
-  The program identify the gene modules using the gene co-expression network.
+  The program module_identify identifies the gene modules using the gene co-expression network.
 usage:
   module_identify -i input_file -o output_file
 options:
@@ -235,7 +235,7 @@ example:
 
 ```
 description:
-  The program data_stat calculate the statistics of gene expression matrix.
+  The program data_stat calculates the statistics of gene expression matrix.
 usage:
   data_stat -i input_file
 options:
@@ -253,7 +253,7 @@ example:
 
 ```
 description:
-  The program network_merge merge two or more networks.
+  The program network_merge merges two or more networks.
 usage:
   network_merge -i input_files -o output_file
 options:
@@ -263,6 +263,46 @@ options:
   -h --help print help information
 example:
   network_merge -i ../sample_data/test_1.network,../sample_data/test_2.network -o ../sample_data/test_merge.network
+```
+
+</details>
+
+<details>
+<summary>network_extract</summary>
+
+```
+description:
+  The program network_extract extracts subnetwork based on a gene list.
+usage:
+  network_extract -i input.network -g gene_list.txt -o output.network
+options:
+  -i --input <input network file>
+  -o --output <output network file>
+  -g --gene <gene list file>
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  network_extract -i ../sample_data/gene_co_expr.network -g ../sample_data/gene_list.txt -o ../sample_data/sub.network
+```
+
+</details>
+
+<details>
+<summary>network_shuffle</summary>
+
+```
+description:
+  The program network_shuffle random shuffles network with degree preserving.
+usage:
+  network_shuffle -i input.network -o output.network
+options:
+  -i --input <input network file>
+  -o --output <output network file>
+  -s --swap <number> multiples of edges number for double-edge swaps to perform (default 100)
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  network_shuffle -i ../sample_data/test_1.network -o ../sample_data/random_shuffled.network
 ```
 
 </details>
@@ -297,7 +337,7 @@ examples:
 
 ```
 description:
-  The program generate_expr_matrix_from_rsem generate gene expression matrix from RSEM outputs.
+  The program generate_expr_matrix_from_rsem generates gene expression matrix from RSEM outputs.
 usage:
   generate_expr_matrix_from_rsem -i input_file -o output_file
 options:
@@ -317,7 +357,7 @@ example:
 
 ```
 description:
-  The program generate_expr_matrix_from_stringtie generate gene expression matrix from StringTie outputs.
+  The program generate_expr_matrix_from_stringtie generates gene expression matrix from StringTie outputs.
 usage:
   generate_expr_matrix_from_stringtie -i input_file -o output_file
 options:

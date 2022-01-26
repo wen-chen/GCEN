@@ -1,3 +1,8 @@
+v0.6.1
+    Added network_extract to extract subnetwork based on a gene list;
+    Added network_shuffle to random shuffle network with degree preserving;
+    Fix some bugs.
+
 v0.6.0
     Added two programs csv_to_tsv and tsv_to_csv for converting tsv and csv files to each other;
     The program data_norm adds an normalization method based housekeeping genes;

@@ -1,33 +1,35 @@
 #include <getopt.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
-#include "util/strim.hpp"
+#include <vector>
 #include "util/base.hpp"
-
+#include "util/strim.hpp"
 
 void rsem_help() {
   std::cout << version;
   std::cout << "generate_expr_matrix_from_rsem usage:\n";
-  std::cout << "  generate_expr_matrix_from_rsem -i input_file -o output_file\n";
+  std::cout
+      << "  generate_expr_matrix_from_rsem -i input_file -o output_file\n";
   std::cout << "options:\n";
-  std::cout << "  -i --input <input file> a text file with sample ID and path to its RSEM result file on each line\n";
+  std::cout << "  -i --input <input file> a text file with sample ID and path "
+               "to its RSEM result file on each line\n";
   std::cout << "  -o --output <output file>\n";
   std::cout << "  -t --tpm output TPM value instead of FPKM vaule\n";
   std::cout << "  -v --version display GCEN version\n";
   std::cout << "  -h --help print help information\n";
   std::cout << "example:\n";
-  std::cout << "  generate_expr_matrix_from_rsem -i ../sample_data/rsem/rsem_sample.txt -o ../sample_data/rsem/rsem_gene_expr.tsv\n";
+  std::cout << "  generate_expr_matrix_from_rsem -i "
+               "../sample_data/rsem/rsem_sample.txt -o "
+               "../sample_data/rsem/rsem_gene_expr.tsv\n";
 }
 
+void read_sample_file(
+    std::string sample_file_name, unsigned int i, std::string flag,
+    std::unordered_map<std::string, std::vector<std::string>> &gene_map);
 
-void read_sample_file(std::string sample_file_name, unsigned int i, std::string flag,
-    std::unordered_map<std::string, std::vector <std::string>> &gene_map);
-
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   if (argc < 2) {
     rsem_help();
     return 0;
@@ -38,15 +40,11 @@ int main(int argc, char* argv[]) {
   std::string out_file_name = "";
   std::string flag = "FPKM";
 
-  const char * const short_opts = "hvti:o:";
+  const char *const short_opts = "hvti:o:";
   const struct option long_opts[] = {
-    { "help", 0, NULL, 'h' },
-    { "version", 0, NULL, 'v' },
-    { "input", 1, NULL, 'i' },
-    { "output", 1, NULL, 'o' },
-    { "tpm", 0, NULL, 't' },
-    { NULL, 0, NULL, 0 }
-  };
+      {"help", 0, NULL, 'h'},  {"version", 0, NULL, 'v'},
+      {"input", 1, NULL, 'i'}, {"output", 1, NULL, 'o'},
+      {"tpm", 0, NULL, 't'},   {NULL, 0, NULL, 0}};
   int opt = getopt_long(argc, argv, short_opts, long_opts, NULL);
   while (opt != -1) {
     switch (opt) {
@@ -73,7 +71,7 @@ int main(int argc, char* argv[]) {
       default:
         return -1;
     }
-    opt = getopt_long( argc, argv, short_opts, long_opts, NULL );
+    opt = getopt_long(argc, argv, short_opts, long_opts, NULL);
   }
 
   // check options
@@ -87,8 +85,8 @@ int main(int argc, char* argv[]) {
   }
 
   // read input file
-  std::vector <std::string> sample_id_vec;
-  std::vector <std::string> sample_file_vec;
+  std::vector<std::string> sample_id_vec;
+  std::vector<std::string> sample_file_vec;
 
   std::ifstream in_file(in_file_name, std::ios::in);
   if (!in_file.good()) {
@@ -97,12 +95,14 @@ int main(int argc, char* argv[]) {
   }
 
   std::string line;
-  while(getline(in_file, line)) {
+  while (getline(in_file, line)) {
     strim(line);
-    std::vector <std::string> str_vec;
+    std::vector<std::string> str_vec;
     split_string(line, str_vec, "\t");
     if (str_vec.size() != 2) {
-      std::cerr << "Error: The format of the input file does not meet the requirements!" << in_file_name << ".\n";
+      std::cerr << "Error: The format of the input file does not meet the "
+                   "requirements!"
+                << in_file_name << ".\n";
       exit(-1);
     }
     std::string sample_id = str_vec[0];
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
   in_file.close();
 
   // read sample files
-  std::unordered_map<std::string, std::vector <std::string>> gene_map;
+  std::unordered_map<std::string, std::vector<std::string>> gene_map;
   for (unsigned int i = 0; i < sample_file_vec.size(); ++i) {
     std::string sample_file_name = sample_file_vec[i];
     read_sample_file(sample_file_name, i, flag, gene_map);
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
 
   for (auto item : gene_map) {
     std::string gene = item.first;
-    std::vector <std::string> expr = item.second;
+    std::vector<std::string> expr = item.second;
     join_vector(expr, "\t", line);
     out_file << gene << '\t' << line << '\n';
   }
@@ -142,9 +142,9 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-
-void read_sample_file(std::string sample_file_name, unsigned int i, std::string flag,
-    std::unordered_map<std::string, std::vector <std::string>> &gene_map) {
+void read_sample_file(
+    std::string sample_file_name, unsigned int i, std::string flag,
+    std::unordered_map<std::string, std::vector<std::string>> &gene_map) {
   std::ifstream sample_file(sample_file_name, std::ios::in);
   if (!sample_file.good()) {
     std::cerr << "Error while opening " << sample_file_name << ".\n";
@@ -152,16 +152,16 @@ void read_sample_file(std::string sample_file_name, unsigned int i, std::string 
   }
 
   std::string line;
-  getline(sample_file, line); // skip the first line
-  while(getline(sample_file, line)) {
+  getline(sample_file, line);  // skip the first line
+  while (getline(sample_file, line)) {
     strim(line);
-    std::vector <std::string> str_vec;
+    std::vector<std::string> str_vec;
     split_string(line, str_vec, "\t");
     std::string gene = str_vec[0];
     std::string TPM = str_vec[5];
     std::string FPKM = str_vec[6];
 
-    if (i > 0) { // check file consistency
+    if (i > 0) {  // check file consistency
       if (gene_map.find(gene) == gene_map.end()) {
         std::cerr << "Error: different gene size detected!";
         exit(-1);
@@ -172,7 +172,7 @@ void read_sample_file(std::string sample_file_name, unsigned int i, std::string 
         }
       }
     } else {
-      gene_map[gene] = std::vector <std::string> {};
+      gene_map[gene] = std::vector<std::string>{};
     }
 
     if (flag == "FPKM") {

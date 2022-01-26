@@ -1,46 +1,46 @@
 #ifndef __ENRICH_H_
 #define __ENRICH_H_
 
-
-#include <cstdlib> // Needed to use the exit function
-#include <iostream>
+#include <algorithm>
+#include <cstdlib>  // Needed to use the exit function
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <unordered_set>
 #include <unordered_map>
-#include <algorithm>
+#include <unordered_set>
+#include <vector>
 #include "base.hpp"
 #include "strim.hpp"
-
 
 class GO_term {
  public:
   std::string id;
   std::string name;
   std::string name_space;
-  std::unordered_set <std::string> parents;
-  std::unordered_set <std::string> children;
-  int level; // shortest distance from root node
-  int depth; // longest distance from root node
+  std::unordered_set<std::string> parents;
+  std::unordered_set<std::string> children;
+  int level;  // shortest distance from root node
+  int depth;  // longest distance from root node
   bool is_obsolete = false;
-  std::unordered_set <std::string> alt_ids;
+  std::unordered_set<std::string> alt_ids;
 
-  std::unordered_set <std::string> get_all_parents(std::unordered_map <std::string, GO_term> & go_term_map);
+  std::unordered_set<std::string> get_all_parents(
+      std::unordered_map<std::string, GO_term>& go_term_map);
 };
 
-
-std::unordered_set <std::string> GO_term::get_all_parents(std::unordered_map <std::string, GO_term> & go_term_map) {
-  std::unordered_set <std::string> all_parents;
-  for (std::string parent: this -> parents) {
+std::unordered_set<std::string> GO_term::get_all_parents(
+    std::unordered_map<std::string, GO_term>& go_term_map) {
+  std::unordered_set<std::string> all_parents;
+  for (std::string parent : this->parents) {
     all_parents.insert(parent);
-    std::unordered_set <std::string> all_parents_of_parent = go_term_map[parent].get_all_parents(go_term_map);
-    all_parents.insert(all_parents_of_parent.begin(), all_parents_of_parent.end());
+    std::unordered_set<std::string> all_parents_of_parent =
+        go_term_map[parent].get_all_parents(go_term_map);
+    all_parents.insert(all_parents_of_parent.begin(),
+                       all_parents_of_parent.end());
   }
   return all_parents;
 }
-
 
 class GO_result {
  public:
@@ -55,8 +55,7 @@ class GO_result {
   double p_val;
 };
 
-
-bool operator < (const GO_result & a, const GO_result & b) {
+bool operator<(const GO_result& a, const GO_result& b) {
   int rank1, rank2;
   if (a.name_space == "biological_process") {
     rank1 = 1;
@@ -88,7 +87,6 @@ bool operator < (const GO_result & a, const GO_result & b) {
   return false;
 }
 
-
 class KO_result {
  public:
   std::string id;
@@ -101,16 +99,15 @@ class KO_result {
   double p_val;
 };
 
-
-bool operator < (const KO_result & a, const KO_result & b) {
+bool operator<(const KO_result& a, const KO_result& b) {
   if (a.p_val < b.p_val) {
     return true;
   }
   return false;
 }
 
-
-void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO_term> & go_term_map) {
+void obo_parser(std::string& obo_file_name,
+                std::unordered_map<std::string, GO_term>& go_term_map) {
   // open obo file
   std::ifstream obo_file(obo_file_name, std::ios::in);
   if (!obo_file.good()) {
@@ -119,7 +116,7 @@ void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO
   }
 
   // read obo file
-  std::vector <GO_term> go_term_vector;
+  std::vector<GO_term> go_term_vector;
   bool flag = false;
   int i = -1;
   std::string lineString;
@@ -127,23 +124,24 @@ void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO
   while (getline(obo_file, lineString)) {
     strim(lineString);
     if (lineString[0] == '#') {
-        continue;
-      }
-    if ((!flag) && (lineString.substr(0,6) == "[Term]")) {
+      continue;
+    }
+    if ((!flag) && (lineString.substr(0, 6) == "[Term]")) {
       go_term_vector.push_back(GO_term());
       flag = true;
       i = i + 1;
-    } else if (flag && (lineString.substr(0,4) == "id: ")) {
+    } else if (flag && (lineString.substr(0, 4) == "id: ")) {
       go_term_vector[i].id = lineString.substr(4);
-    } else if (flag && (lineString.substr(0,8) == "alt_id: ")) {
+    } else if (flag && (lineString.substr(0, 8) == "alt_id: ")) {
       go_term_vector[i].alt_ids.insert(lineString.substr(8));
-    } else if (flag && (lineString.substr(0,6) == "name: ")) {
+    } else if (flag && (lineString.substr(0, 6) == "name: ")) {
       go_term_vector[i].name = lineString.substr(6);
-    } else if (flag && (lineString.substr(0,11) == "namespace: ")) {
+    } else if (flag && (lineString.substr(0, 11) == "namespace: ")) {
       go_term_vector[i].name_space = lineString.substr(11);
-    } else if (flag && (lineString.substr(0,6) == "is_a: ")) {
-      go_term_vector[i].parents.insert(lineString.substr(6,10));
-    } else if (flag && (lineString.substr(0,13) == "is_obsolete: ") && (lineString.substr(13) == "true")) {
+    } else if (flag && (lineString.substr(0, 6) == "is_a: ")) {
+      go_term_vector[i].parents.insert(lineString.substr(6, 10));
+    } else if (flag && (lineString.substr(0, 13) == "is_obsolete: ") &&
+               (lineString.substr(13) == "true")) {
       go_term_vector[i].is_obsolete = true;
     } else if (lineString.empty()) {
       flag = false;
@@ -156,9 +154,11 @@ void obo_parser(std::string & obo_file_name, std::unordered_map <std::string, GO
   }
 }
 
-
 // go
-void assoc_parser(std::string & assoc_file_name, std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map) {
+void assoc_parser(
+    std::string& assoc_file_name,
+    std::unordered_map<std::string, std::unordered_set<std::string>>&
+        assoc_map) {
   // open assoc file
   std::ifstream assoc_file(assoc_file_name, std::ios::in);
   if (!assoc_file.good()) {
@@ -171,13 +171,13 @@ void assoc_parser(std::string & assoc_file_name, std::unordered_map <std::string
   while (getline(assoc_file, lineString)) {
     strim(lineString);
     if (lineString[0] == '#') {
-        continue;
-      }
+      continue;
+    }
     std::stringstream slineString;
     slineString << lineString;
     std::string gene_name;
     getline(slineString, gene_name, '\t');
-    std::unordered_set <std::string> go_id_set;
+    std::unordered_set<std::string> go_id_set;
     std::string go_id;
     while (getline(slineString, go_id, '\t')) {
       go_id_set.insert(go_id);
@@ -190,11 +190,12 @@ void assoc_parser(std::string & assoc_file_name, std::unordered_map <std::string
   }
 }
 
-
 // kegg
-void assoc_parser(std::string & assoc_file_name, 
-    std::unordered_map <std::string, std::unordered_set<std::string>> & K_map,
-    std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map) {
+void assoc_parser(
+    std::string& assoc_file_name,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& K_map,
+    std::unordered_map<std::string, std::unordered_set<std::string>>&
+        assoc_map) {
   // open assoc file
   std::ifstream assoc_file(assoc_file_name, std::ios::in);
   if (!assoc_file.good()) {
@@ -213,7 +214,7 @@ void assoc_parser(std::string & assoc_file_name,
     slineString << lineString;
     std::string gene;
     getline(slineString, gene, '\t');
-    std::unordered_set <std::string> ko_set;
+    std::unordered_set<std::string> ko_set;
     std::string K;
     while (getline(slineString, K, '\t')) {
       ko_set.insert(K_map[K].begin(), K_map[K].end());
@@ -226,23 +227,25 @@ void assoc_parser(std::string & assoc_file_name,
   }
 }
 
-
-void propagate(std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map, std::unordered_map <std::string, GO_term> & go_term_map) {
-  for (auto & assoc_item : assoc_map) {
-    std::unordered_set <std::string> all_go_ids = assoc_item.second;
+void propagate(
+    std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
+    std::unordered_map<std::string, GO_term>& go_term_map) {
+  for (auto& assoc_item : assoc_map) {
+    std::unordered_set<std::string> all_go_ids = assoc_item.second;
     for (auto go_id : assoc_item.second) {
-      std::unordered_set <std::string> all_parents = go_term_map[go_id].get_all_parents(go_term_map);
+      std::unordered_set<std::string> all_parents =
+          go_term_map[go_id].get_all_parents(go_term_map);
       all_go_ids.insert(all_parents.begin(), all_parents.end());
     }
     assoc_item.second.insert(all_go_ids.begin(), all_go_ids.end());
   }
 }
 
-
-void load_network(std::string & network_file_name,
-    std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map,
-    std::unordered_map <std::string, std::unordered_set <std::string>> & network,
-    std::unordered_set <std::string> & background_gene_set) {
+void load_network(
+    std::string& network_file_name,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& network,
+    std::unordered_set<std::string>& background_gene_set) {
   // open network file
   std::ifstream network_file(network_file_name, std::ios::in);
   if (!network_file.good()) {
@@ -257,23 +260,25 @@ void load_network(std::string & network_file_name,
     if (lineString[0] == '#') {
       continue;
     }
-    std::vector <std::string> str_vec;
+    std::vector<std::string> str_vec;
     split_string(lineString, str_vec, "\t");
     std::string geneA = str_vec[0];
     std::string geneB = str_vec[1];
-    if ((assoc_map.find(geneA) == assoc_map.end()) && (assoc_map.find(geneB) != assoc_map.end())) {
+    if ((assoc_map.find(geneA) == assoc_map.end()) &&
+        (assoc_map.find(geneB) != assoc_map.end())) {
       if (network.find(geneA) != network.end()) {
         network[geneA].insert(geneB);
       } else {
-        network[geneA] = std::unordered_set < std::string > {};
+        network[geneA] = std::unordered_set<std::string>{};
         network[geneA].insert(geneB);
       }
       background_gene_set.insert(geneB);
-    } else if ((assoc_map.find(geneA) != assoc_map.end()) && (assoc_map.find(geneB) == assoc_map.end())) {
+    } else if ((assoc_map.find(geneA) != assoc_map.end()) &&
+               (assoc_map.find(geneB) == assoc_map.end())) {
       if (network.find(geneB) != network.end()) {
         network[geneB].insert(geneA);
       } else {
-        network[geneB] = std::unordered_set <std::string> {};
+        network[geneB] = std::unordered_set<std::string>{};
         network[geneB].insert(geneA);
       }
       background_gene_set.insert(geneA);
@@ -281,9 +286,9 @@ void load_network(std::string & network_file_name,
   }
 }
 
-
-void load_module(std::string & module_file_name, std::vector <std::unordered_set <std::string>> & module_vec, 
-      std::unordered_set <std::string> & background_gene_set) {
+void load_module(std::string& module_file_name,
+                 std::vector<std::unordered_set<std::string>>& module_vec,
+                 std::unordered_set<std::string>& background_gene_set) {
   // open file
   std::ifstream module_file(module_file_name, std::ios::in);
   if (!module_file.good()) {
@@ -298,7 +303,7 @@ void load_module(std::string & module_file_name, std::vector <std::unordered_set
     if (lineString[0] == '#') {
       continue;
     }
-    std::unordered_set <std::string> module;
+    std::unordered_set<std::string> module;
     std::stringstream slineString;
     slineString << lineString;
     std::string singleString;
@@ -310,10 +315,11 @@ void load_module(std::string & module_file_name, std::vector <std::unordered_set
   }
 }
 
-
-void load_gene_list(std::string & gene_list_file_name,
-        std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map,
-        std::unordered_map <std::string, std::unordered_set <std::string>> & gene_map) {
+void load_gene_list(
+    std::string& gene_list_file_name,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
+    std::unordered_map<std::string, std::unordered_set<std::string>>&
+        gene_map) {
   // open gene list file
   std::ifstream gene_list_file(gene_list_file_name, std::ios::in);
   if (!gene_list_file.good()) {
@@ -322,7 +328,7 @@ void load_gene_list(std::string & gene_list_file_name,
   }
 
   // read file
-  std::string lineString;  
+  std::string lineString;
   while (getline(gene_list_file, lineString)) {
     strim(lineString);
     if (lineString[0] == '#') {
@@ -334,27 +340,28 @@ void load_gene_list(std::string & gene_list_file_name,
   }
 }
 
-
-void gene_set_to_map(std::unordered_set <std::string> & gene_set, 
-  std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map,
-  std::unordered_map <std::string, std::unordered_set <std::string>> & gene_map) {
-  for (auto & gene : gene_set) {
+void gene_set_to_map(
+    std::unordered_set<std::string>& gene_set,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
+    std::unordered_map<std::string, std::unordered_set<std::string>>&
+        gene_map) {
+  for (auto& gene : gene_set) {
     if (assoc_map.find(gene) != assoc_map.end()) {
       gene_map[gene] = assoc_map[gene];
     }
   }
 }
 
-
-int count(std::unordered_set <std::string> & gene_set,
-    std::unordered_map <std::string, std::unordered_set <std::string>> & assoc_map,
-    std::unordered_map <std::string, int> & go_count_map) {
+int count(
+    std::unordered_set<std::string>& gene_set,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
+    std::unordered_map<std::string, int>& go_count_map) {
   int n = 0;
-  std::unordered_set <std::string> go_set;
-  std::vector <std::string> go_vector;
+  std::unordered_set<std::string> go_set;
+  std::vector<std::string> go_vector;
   for (auto gene : gene_set) {
     if (assoc_map.find(gene) != assoc_map.end()) {
-      for (auto go : assoc_map[gene]){
+      for (auto go : assoc_map[gene]) {
         go_set.insert(go);
         go_vector.push_back(go);
       }
@@ -370,10 +377,11 @@ int count(std::unordered_set <std::string> & gene_set,
   return n;
 }
 
-
-void count(std::unordered_map <std::string, std::unordered_set <std::string>> & gene_go_map, std::unordered_map <std::string, int> & go_count_map) {
-  std::unordered_set <std::string> go_set;
-  std::vector <std::string> go_vector;
+void count(std::unordered_map<std::string, std::unordered_set<std::string>>&
+               gene_go_map,
+           std::unordered_map<std::string, int>& go_count_map) {
+  std::unordered_set<std::string> go_set;
+  std::vector<std::string> go_vector;
   for (auto gene_go_item : gene_go_map) {
     for (auto go : gene_go_item.second) {
       go_set.insert(go);
@@ -387,10 +395,10 @@ void count(std::unordered_map <std::string, std::unordered_set <std::string>> & 
   }
 }
 
-
-void K2ko_parser(std::string & K2ko_file_name, 
-    std::unordered_map <std::string, std::unordered_set<std::string>> & K_map, 
-    std::unordered_map <std::string, std::string> & ko_map) {
+void K2ko_parser(
+    std::string& K2ko_file_name,
+    std::unordered_map<std::string, std::unordered_set<std::string>>& K_map,
+    std::unordered_map<std::string, std::string>& ko_map) {
   // open K2ko file
   std::ifstream K2ko_file(K2ko_file_name, std::ios::in);
   if (!K2ko_file.good()) {
@@ -405,7 +413,7 @@ void K2ko_parser(std::string & K2ko_file_name,
     if (lineString[0] == '#') {
       continue;
     }
-    std::vector <std::string> str_vec;
+    std::vector<std::string> str_vec;
     split_string(lineString, str_vec, "\t");
     std::string K = str_vec[0];
     std::string ko = str_vec[1];
@@ -414,15 +422,13 @@ void K2ko_parser(std::string & K2ko_file_name,
     if (K_map.find(K) != K_map.end()) {
       K_map[K].insert(ko);
     } else {
-      K_map[K] = std::unordered_set <std::string> {ko};
+      K_map[K] = std::unordered_set<std::string>{ko};
     }
 
     if (ko_map.find(ko) == ko_map.end()) {
       ko_map[ko] = desc;
     }
-    
   }
 }
-
 
 #endif

@@ -1,19 +1,18 @@
 #ifndef __PEARSON_H_
 #define __PEARSON_H_
 
-
-#include <vector>
+#include <algorithm>
 #include <cmath>
 #include <limits>
-#include <algorithm>
+#include <vector>
 
-
-inline double pearson (const std::vector <double> & x, const std::vector <double> & y) {
+inline double pearson(const std::vector<double>& x,
+                      const std::vector<double>& y) {
   constexpr double TINY = std::numeric_limits<double>::min();
   int n = x.size();
 
   double ax = 0.0, ay = 0;
-  for (int i=0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     ax += x[i];
     ay += y[i];
   }
@@ -21,7 +20,7 @@ inline double pearson (const std::vector <double> & x, const std::vector <double
   ay = ay / n;
 
   double xt = 0.0, yt = 0.0, sxx = 0.0, syy = 0.0, sxy = 0.0;
-  for (int i=0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     xt = x[i] - ax;
     yt = y[i] - ay;
     sxx += xt * xt;
@@ -33,20 +32,20 @@ inline double pearson (const std::vector <double> & x, const std::vector <double
   return cor;
 }
 
-
 /*
-Regularized Incomplete Beta Function comes from https://github.com/codeplea/incbeta 
-Lewis Van Winkle
+Regularized Incomplete Beta Function comes from
+https://github.com/codeplea/incbeta Lewis Van Winkle
 */
 inline double incbeta(const double a, const double b, const double x) {
   const double TINY = 1.0e-30;
   const double STOP = 1.0e-8;
 
-  if (x < 0.0 || x > 1.0) return 1.0/0.0;
+  if (x < 0.0 || x > 1.0) return 1.0 / 0.0;
 
   /*The continued fraction converges nicely for x < (a+1)/(a+b+2)*/
   if (x > (a + 1.0) / (a + b + 2.0)) {
-    return (1.0 - incbeta(b, a, 1.0 -x )); /*Use the fact that beta is symmetrical.*/
+    return (1.0 -
+            incbeta(b, a, 1.0 - x)); /*Use the fact that beta is symmetrical.*/
   }
 
   /*Find the first part before the continued fraction.*/
@@ -58,15 +57,17 @@ inline double incbeta(const double a, const double b, const double x) {
 
   int i, m;
   for (i = 0; i <= 200; ++i) {
-    m = i/2;
+    m = i / 2;
 
     double numerator;
     if (i == 0) {
       numerator = 1.0; /*First numerator is 1.0.*/
     } else if (i % 2 == 0) {
-      numerator = (m*(b-m)*x)/((a+2.0*m-1.0)*(a+2.0*m)); /*Even term.*/
+      numerator = (m * (b - m) * x) /
+                  ((a + 2.0 * m - 1.0) * (a + 2.0 * m)); /*Even term.*/
     } else {
-      numerator = -((a+m)*(a+b+m)*x)/((a+2.0*m)*(a+2.0*m+1)); /*Odd term.*/
+      numerator = -((a + m) * (a + b + m) * x) /
+                  ((a + 2.0 * m) * (a + 2.0 * m + 1)); /*Odd term.*/
     }
 
     /*Do an iteration of Lentz's algorithm.*/
@@ -82,18 +83,17 @@ inline double incbeta(const double a, const double b, const double x) {
       c = TINY;
     }
 
-    const double cd = c*d;
+    const double cd = c * d;
     f *= cd;
 
-    /*Check for stop.*/  
-    if (fabs(1.0-cd) < STOP) {
-      return front * (f-1.0);
+    /*Check for stop.*/
+    if (fabs(1.0 - cd) < STOP) {
+      return front * (f - 1.0);
     }
   }
 
-  return 1.0/0.0; /*Needed more loops, did not converge.*/
+  return 1.0 / 0.0; /*Needed more loops, did not converge.*/
 }
-
 
 inline double get_p_value(const double r, const double n) {
   constexpr double TINY = std::numeric_limits<double>::min();
@@ -105,6 +105,5 @@ inline double get_p_value(const double r, const double n) {
 
   return p;
 }
-
 
 #endif
