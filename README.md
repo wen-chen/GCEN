@@ -29,19 +29,89 @@ After gene co-expression network construction and module identification, we use 
 ## Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.6.1-linux-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.1/gcen-0.6.1-linux-x86_64.tar.gz)  
+[gcen-0.6.2-linux-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-linux-x86_64.tar.gz)  
 
-[gcen-0.6.1-macOS-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.1/gcen-0.6.1-macOS-x86_64.tar.gz)  
+[gcen-0.6.2-macOS-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-macOS-x86_64.tar.gz)  
 
-[gcen-0.6.1-windows-x86_64.zip](https://github.com/wen-chen/GCEN/releases/download/v0.6.1/gcen-0.6.1-windows-x86_64.zip)  
+[gcen-0.6.2-windows-x86_64.zip](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-windows-x86_64.zip)  
 
-[gcen-0.6.1-source.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.1/gcen-0.6.1-source.tar.gz)  
+[gcen-0.6.2-source.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-source.tar.gz)  
 
 For Linux and macOS user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Since bioconda does not support Windows, Windows users can download the pre-built binaries directly from our website.
 ```
 conda install gcen -c bioconda
 ```
 
+## Quick start
+### 1. Download GCEN and add to the ```PATH```  
+```bash
+mkdir -p ~/software/
+cd ~/software/
+wget https://www.biochen.org/gcen/static/0.6.2/gcen-0.6.2-linux-x86_64.tar.gz
+tar zxf gcen-0.6.2-linux-x86_64.tar.gz
+echo "export PATH=$HOME/software/gcen-0.6.2-linux-x86_64/bin:\$PATH" >> ~/.bashrc
+echo "export PATH=$HOME/software/gcen-0.6.2-linux-x86_64/util:\$PATH" >> ~/.bashrc
+source ~/.bashrc
+rm ~/software/gcen-0.6.2-linux-x86_64.tar.gz
+```
+
+### 2. Recommended pipeline  
+
+<details>
+<summary>Step 0: enter the bin directory of GCEN</summary>
+The executable program is located in the bin directory and the sample data is located in the sample_data directory. All of the following commands can be run with the sample data. We first switch the current directory to the bin directory.
+
+```
+cd ~/software/gcen-0.6.2-linux-x86_64/bin/
+```
+
+</details>
+
+<details>
+<summary>Step 1: data pretreatment</summary>
+
+```
+./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m tmm
+./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -p 0.75
+```
+
+</details>
+
+<details>
+<summary>Step 2: co-expression network construction</summary>
+
+```
+./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f -t 6
+```
+
+</details>
+
+<details>
+<summary>Step 3: module identification (optional)</summary>
+
+```
+./module_identify -i ../sample_data/gene_co_expr.network -o ../sample_data/module.txt -s 0.5 -t 6
+```
+
+</details>
+
+<details>
+<summary>Step 4: function annotation</summary>
+
+```
+# network based annotation
+./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_go_annotation
+./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
+
+# module based annotation (optional)
+./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -m ../sample_data/module.txt -o ../sample_data/module_go_annotation
+./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -m ../sample_data/module.txt -o ../sample_data/module_kegg_annotation
+
+# identify genes with specific functions based on RWR (optional)
+./rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene.list -o ../sample_data/rwr_result.tsv
+```
+
+</details>
 
 ## Usage  
 ### Main programs  
@@ -249,6 +319,24 @@ example:
 </details>
 
 <details>
+<summary>network_stat</summary>
+
+```
+description:
+  The program network_stat calculates the statistics of network.
+usage:
+  network_stat -i input_file
+options:
+  -i --input <input file>
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  network_stat -i ../sample_data/gene_co_expr.network
+```
+
+</details>
+
+<details>
 <summary>network_merge</summary>
 
 ```
@@ -371,58 +459,6 @@ example:
 ```
 
 </details>
-
-
-## Recommended pipeline  
-
-<details>
-<summary>Step 1: data pretreatment
-</summary>
-
-```
-./data_norm -i ../sample_data/gene_expr.tsv -o ../sample_data/gene_expr_norm.tsv -m tmm
-./data_filter -i ../sample_data/gene_expr_norm.tsv -o ../sample_data/gene_expr_norm_filter.tsv -p 0.75
-```
-
-</details>
-
-<details>
-<summary>Step 2: co-expression network construction
-</summary>
-
-```
-./network_build -i ../sample_data/gene_expr_norm_filter.tsv -o ../sample_data/gene_co_expr.network -m spearman -p 0.001 -c 0.8 -f -t 6
-```
-
-</details>
-
-<details>
-<summary>Step 3: module identification (optional)</summary>
-
-```
-./module_identify -i ../sample_data/gene_co_expr.network -o ../sample_data/module.txt -s 0.5 -t 6
-```
-
-</details>
-
-<details>
-<summary>Step 4: function annotation</summary>
-
-```
-# network based annotation
-./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_go_annotation
-./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -n ../sample_data/gene_co_expr.network -o ../sample_data/network_kegg_annotation
-
-# module based annotation (optional)
-./annotate -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -m ../sample_data/module.txt -o ../sample_data/module_go_annotation
-./annotate -k ../sample_data/K2ko.tsv -a ../sample_data/gene_kegg.assoc -m ../sample_data/module.txt -o ../sample_data/module_kegg_annotation
-
-# identify genes with specific functions based on RWR (optional)
-./rwr -n ../sample_data/gene_co_expr.network -g ../sample_data/rwr_interested_gene.list -o ../sample_data/rwr_result.tsv
-```
-
-</details>
-
 
 ## Data format  
 To understand the format of the input and output files for each program, please take a look at the sample data included in the software package.  

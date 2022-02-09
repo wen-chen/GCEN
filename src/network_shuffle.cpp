@@ -5,7 +5,7 @@
 #include <string>                    // std::string
 #include <vector>                    // std::vector
 #include "third_party/robin_hood.h"  // robin_hood::unordered_map, robin_hood::unordered_set
-#include "util/base.hpp"  // version, strim(), split_string()
+#include "util/base.hpp"  // version, display_version(), strim(), split_string()
 
 void network_shuffle_help() {
   std::cout << version;
@@ -43,12 +43,11 @@ int main(int argc, char* argv[]) {
   std::string out_file_name;
   size_t swap_num = 100;
 
-  const char* const short_opts = "hi:o:s:";
-  const struct option long_opts[] = {{"help", 0, NULL, 'h'},
-                                     {"input", 1, NULL, 'i'},
-                                     {"output", 1, NULL, 'o'},
-                                     {"swap", 1, NULL, 's'},
-                                     {NULL, 0, NULL, 0}};
+  const char* const short_opts = "hvi:o:s:";
+  const struct option long_opts[] = {
+      {"help", 0, NULL, 'h'},  {"version", 0, NULL, 'v'},
+      {"input", 1, NULL, 'i'}, {"output", 1, NULL, 'o'},
+      {"swap", 1, NULL, 's'},  {NULL, 0, NULL, 0}};
   int opt = getopt_long(argc, argv, short_opts, long_opts, NULL);
   while (opt != -1) {
     switch (opt) {
@@ -63,6 +62,9 @@ int main(int argc, char* argv[]) {
         break;
       case 'h':
         network_shuffle_help();
+        return 0;
+      case 'v':
+        display_version();
         return 0;
       case '?':
         network_shuffle_help();

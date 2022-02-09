@@ -23,9 +23,9 @@ int main(int argc, char* argv[]) {
   }
 
   // get option
-  std::string in_file_name = "";
+  std::string in_file_name;
 
-  const char* const short_opts = "hvi:o:m:s:";
+  const char* const short_opts = "hvi:";
   const struct option long_opts[] = {{"help", 0, NULL, 'h'},
                                      {"version", 0, NULL, 'v'},
                                      {"input", 1, NULL, 'i'},

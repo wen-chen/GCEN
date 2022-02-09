@@ -13,7 +13,7 @@
 #include "strim.hpp"
 
 std::string version =
-    "GCEN 0.6.1 by Wen Chen (chenwen@biochen.org, "
+    "GCEN 0.6.2 by Wen Chen (chenwen@biochen.org, "
     "https://www.biochen.org/gcen)\n";
 
 void display_version() { std::cout << version; }

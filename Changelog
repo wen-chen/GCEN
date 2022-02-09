@@ -1,3 +1,6 @@
+v0.6.2
+    Added network_stat to calculate the statistics of network.
+
 v0.6.1
     Added network_extract to extract subnetwork based on a gene list;
     Added network_shuffle to random shuffle network with degree preserving;

@@ -158,6 +158,18 @@ options:
 example:
   data_stat -i ../sample_data/gene_expr.tsv
 
+network_stat
+description:
+  The program network_stat calculates the statistics of network.
+usage:
+  network_stat -i input_file
+options:
+  -i --input <input file>
+  -v --version display GCEN version
+  -h --help print help information
+example:
+  network_stat -i ../sample_data/gene_co_expr.network
+
 network_merge
 description:
   The program network_merge merges two or more networks.

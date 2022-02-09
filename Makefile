@@ -1,5 +1,5 @@
 PREFIX = .
-CCFLAGS = -std=c++17 -O3 -Wall
+CCFLAGS = -std=c++11 -O3 -Wall
 
 
 ifeq ($(OS),Windows_NT)
@@ -27,6 +27,7 @@ all:
 	$(CXX) src/rwr.cpp -o $(PREFIX)/bin/rwr $(CCFLAGS)
 
 	$(CXX) src/data_stat.cpp -o $(PREFIX)/util/data_stat $(CCFLAGS)
+	$(CXX) src/network_stat.cpp -o $(PREFIX)/util/network_stat $(CCFLAGS)
 	$(CXX) src/network_merge.cpp -o $(PREFIX)/util/network_merge $(CCFLAGS)
 	$(CXX) src/network_extract.cpp -o $(PREFIX)/util/network_extract $(CCFLAGS)
 	$(CXX) src/network_shuffle.cpp -o $(PREFIX)/util/network_shuffle $(CCFLAGS)
