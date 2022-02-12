@@ -463,5 +463,82 @@ example:
 ## Data format  
 To understand the format of the input and output files for each program, please take a look at the sample data included in the software package.  
 
+Most input and output files of GCEN are tab-separated values (TSV) files. We provide two programs ```csv_to_tsv``` and ```tsv_to_csv``` for converting TSV and CSV files to each other.
+
+Formats of some critical files are described as follows:
+
+<details>
+<summary>Gene expression matrix</summary>
+The first column are gene name, the others are gene expression value.
+
+```
+#gene	SRR372787	SRR372788	SRR372789	SRR372790	SRR372791	SRR372792
+ENSDARG00000117464	0.00	55.64	8.33	219.56	0.00	249.22
+ENSDARG00000117133	0.00	21.20	0.00	18.15	0.00	29.70
+ENSDARG00000117089	62.73	55.50	318.04	240.76	96.14	69.75
+ENSDARG00000116743	18.43	219.98	6.71	189.01	11.30	221.65
+ENSDARG00000115987	0.00	92.30	0.00	78.53	24.40	108.66
+```
+
+</details>
+
+<details>
+<summary>Gene co-expressiong network</summary>
+Each column is gene a, gene b, correlation coefficent, p-value, FDR.
+
+```
+#node1	node2	correlation	p-value	FDR
+ENSDARG00000039935	ENSDARG00000062108	0.881139	2.988639e-06	8.097798e-05
+ENSDARG00000039935	ENSDARG00000016088	0.867002	6.652075e-06	1.420293e-04
+ENSDARG00000039935	ENSDARG00000099024	0.823607	4.842646e-05	5.762282e-04
+ENSDARG00000039935	ENSDARG00000001803	0.805322	9.588506e-05	9.389785e-04
+ENSDARG00000039935	ENSDARG00000019835	0.885008	2.359077e-06	6.912051e-05
+```
+
+</details>
+
+<details>
+<summary>Known gene annotation</summary>
+The first column are genename, the others are annotation. For genes with multiple annotations, a format with multiple rows (two columns per row, for gene and annotation) per gene is also acceptable.
+
+```
+ENSG00000211780	GO:0005886
+ENSG00000211780	GO:0002250
+ENSG00000211664	GO:0002377	GO:0005886	GO:0006955	GO:0005615	GO:0003823	GO:0002250
+ENSG00000231292	GO:0002377	GO:0005615	GO:0006955
+ENSG00000271383	GO:0005737
+```
+
+</details>
+
+<details>
+<summary>Predicted gene GO annotation</summary>
+
+```
+GO	name	name_space	enrichment	study_count	study_n	pop_count	pop_n	p_val
+GO:0035672	oligopeptide transmembrane transport	biological_process	e	3	49	3	973	0.000120375
+GO:0006857	oligopeptide transport	biological_process	e	3	49	3	973	0.000120375
+GO:0044281	small molecule metabolic process	biological_process	e	12	49	91	973	0.00109452
+GO:0006766	vitamin metabolic process	biological_process	e	3	49	5	973	0.00111971
+GO:0006446	regulation of translational initiation	biological_process	e	3	49	5	973	0.00111971
+```
+
+</details>
+
+<details>
+<summary>Predicted gene KEGG annotation</summary>
+The first column are gene name, the others are gene expression value.
+
+```
+ko	name	enrichment	study_count	study_n	pop_count	pop_n	p_val
+ko02010	ABC transporters	e	4	50	7	443	0.00391765
+ko04070	Phosphatidylinositol signaling system	e	2	50	3	443	0.0348134
+ko04011	MAPK signaling pathway - yeast	e	2	50	3	443	0.0348134
+ko04977	Vitamin digestion and absorption	e	2	50	3	443	0.0348134
+ko00520	Amino sugar and nucleotide sugar metabolism	e	2	50	3	443	0.0348134
+```
+
+</details>
+
 ## Contact  
 We appreciate your interest in our work. For further information or if you have any questions, please do not hesitate to contact us (Wen Harold Chen, chenwen@biochen.org).
