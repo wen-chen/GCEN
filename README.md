@@ -29,13 +29,13 @@ After gene co-expression network construction and module identification, we use 
 ## Download  
 GCEN is an open source software under the GPLv3 license. We provide source code and pre-built binaries. GCEN only supports 64-bit operating system and has been tested in Ubuntu 18.04 (Bionic Beaver), Ubuntu 20.04 (Focal Fossa), Windows 7, Windows 10, macOS 10.15 (Catalina) and macOS 11.0 (Big Sur).  
 
-[gcen-0.6.2-linux-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-linux-x86_64.tar.gz)  
+[gcen-0.6.3-linux-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.3/gcen-0.6.3-linux-x86_64.tar.gz)  
 
-[gcen-0.6.2-macOS-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-macOS-x86_64.tar.gz)  
+[gcen-0.6.3-macOS-x86_64.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.3/gcen-0.6.3-macOS-x86_64.tar.gz)  
 
-[gcen-0.6.2-windows-x86_64.zip](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-windows-x86_64.zip)  
+[gcen-0.6.3-windows-x86_64.zip](https://github.com/wen-chen/GCEN/releases/download/v0.6.3/gcen-0.6.3-windows-x86_64.zip)  
 
-[gcen-0.6.2-source.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.2/gcen-0.6.2-source.tar.gz)  
+[gcen-0.6.3-source.tar.gz](https://github.com/wen-chen/GCEN/releases/download/v0.6.3/gcen-0.6.3-source.tar.gz)  
 
 For Linux and macOS user, you can install GCEN with [conda](https://anaconda.org/bioconda/gcen). Since bioconda does not support Windows, Windows users can download the pre-built binaries directly from our website.
 ```
@@ -47,12 +47,12 @@ conda install gcen -c bioconda
 ```bash
 mkdir -p ~/software/
 cd ~/software/
-wget https://www.biochen.org/gcen/static/0.6.2/gcen-0.6.2-linux-x86_64.tar.gz
-tar zxf gcen-0.6.2-linux-x86_64.tar.gz
-echo "export PATH=$HOME/software/gcen-0.6.2-linux-x86_64/bin:\$PATH" >> ~/.bashrc
-echo "export PATH=$HOME/software/gcen-0.6.2-linux-x86_64/util:\$PATH" >> ~/.bashrc
+wget https://www.biochen.org/gcen/static/0.6.3/gcen-0.6.3-linux-x86_64.tar.gz
+tar zxf gcen-0.6.3-linux-x86_64.tar.gz
+echo "export PATH=$HOME/software/gcen-0.6.3-linux-x86_64/bin:\$PATH" >> ~/.bashrc
+echo "export PATH=$HOME/software/gcen-0.6.3-linux-x86_64/util:\$PATH" >> ~/.bashrc
 source ~/.bashrc
-rm ~/software/gcen-0.6.2-linux-x86_64.tar.gz
+rm ~/software/gcen-0.6.3-linux-x86_64.tar.gz
 ```
 
 ### 2. Recommended pipeline  
@@ -62,7 +62,7 @@ rm ~/software/gcen-0.6.2-linux-x86_64.tar.gz
 The executable program is located in the bin directory and the sample data is located in the sample_data directory. All of the following commands can be run with the sample data. We first switch the current directory to the bin directory.
 
 ```
-cd ~/software/gcen-0.6.2-linux-x86_64/bin/
+cd ~/software/gcen-0.6.3-linux-x86_64/bin/
 ```
 
 </details>
