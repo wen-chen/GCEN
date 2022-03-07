@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <cmath>                     // pow, sqrt
 #include <fstream>                   // std::ifstream
 #include <iostream>                  // std::cout, std::cerr
 #include <string>                    // std::string
@@ -78,6 +79,7 @@ int main(int argc, char* argv[]) {
   // stat
   robin_hood::unordered_map<std::string, robin_hood::unordered_set<std::string>>
       network;
+  robin_hood::unordered_set<std::string> node_set;
   robin_hood::unordered_map<std::string, bool> node_state;
   size_t edge_num = 0;
 
@@ -95,6 +97,9 @@ int main(int argc, char* argv[]) {
     split_string(line, str_vec, "\t");
     std::string node_a = str_vec[0];
     std::string node_b = str_vec[1];
+
+    node_set.insert(node_a);
+    node_set.insert(node_b);
 
     node_state[node_a] = true;
     node_state[node_b] = true;
@@ -123,9 +128,25 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
+  std::vector<std::string> node_vec(node_set.begin(), node_set.end());
+  double heterogeneity = 0.0;
+  for (size_t i = 0; i < node_num; ++i) {
+    for (size_t j = i + 1; j < node_num; ++j) {
+      if (network[node_vec[i]].find(node_vec[j]) !=
+          network[node_vec[i]].end()) {
+        size_t degree_a = network[node_vec[i]].size();
+        size_t degree_b = network[node_vec[j]].size();
+        heterogeneity += pow(1.0 / sqrt(degree_a) - 1.0 / sqrt(degree_b), 2);
+      }
+    }
+  }
+
+  heterogeneity = heterogeneity / (node_num - 2.0 * sqrt(node_num - 1));
+
   size_t component_num = 0;
   size_t max_component = 0;
   size_t degree_sum = 0;
+  size_t max_degree = 0;
 
   for (auto& node_item : node_state) {
     std::string node = node_item.first;
@@ -141,12 +162,23 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    int degree = network[node].size();
+    size_t degree = network[node].size();
     degree_sum += degree;
+    if (degree > max_degree) {
+      max_degree = degree;
+    }
   }
 
   double density = edge_num * 2.0 / node_num / (node_num - 1);
   double degree_mean = ((double)degree_sum) / node_num;
+
+  double centrality = 0.0;
+  for (auto& node : node_vec) {
+    size_t degree = network[node].size();
+    centrality += max_degree - degree;
+  }
+
+  centrality = centrality / ((node_num - 1) * (node_num - 2));
 
   double clustering_coefficient_sum = 0.0;
   size_t triangle_sum = 0;
@@ -180,7 +212,11 @@ int main(int argc, char* argv[]) {
   }
 
   double average_clustering_coefficient = clustering_coefficient_sum / node_num;
-  double transitivity = triangle_sum * 2.0 / triangle_ctrl;
+
+  double transitivity = 0;
+  if (triangle_ctrl > 0) {  // avoid division by zero
+    transitivity = triangle_sum * 2.0 / triangle_ctrl;
+  }
 
   // output
   std::cout << "Number of nodes: " << node_num
@@ -189,6 +225,8 @@ int main(int argc, char* argv[]) {
             << "; The giant component: " << max_component
             << ";\nNetwork density: " << density
             << "; Average node degree: " << degree_mean
+            << ";\nDegree centrality: " << centrality
+            << "; Network heterogeneity: " << heterogeneity
             << ";\nAverage clustering coefficient: "
             << average_clustering_coefficient
             << "; Transitivity: " << transitivity << ".\n";

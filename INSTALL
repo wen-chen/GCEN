@@ -1,4 +1,4 @@
-The GCEN requires compiler and library support for the ISO C++ 2017 standard.
+The GCEN requires compiler and library support for the ISO C++ 2011 standard.
 
 To compile the GCEN, please run the following command:
 make

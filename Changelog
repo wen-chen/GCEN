@@ -1,3 +1,9 @@
+v0.6.3
+    Added calculate_accuracy to calculate the accuracy of prediction;
+    The program network_stat added statistics: degree centrality and network heterogeneity;
+    Performance of program annotate was improved;
+    Fix some minor bugs.
+
 v0.6.2
     Added network_stat to calculate the statistics of network.
 
@@ -8,8 +14,8 @@ v0.6.1
 
 v0.6.0
     Added two programs csv_to_tsv and tsv_to_csv for converting tsv and csv files to each other;
-    The program data_norm adds an normalization method based housekeeping genes;
-    The program network_build add a new parameter -a/--all for output all edges without any cutoff;
+    The program data_norm added an normalization method based housekeeping genes;
+    The program network_build added a new parameter -a/--all for output all edges without any cutoff;
     Fix some bugs.
 
 v0.5.2
@@ -18,9 +24,9 @@ v0.5.2
 
 v0.5.1
     Use robin_hood::unordered_map instead of std::unordered_map for performance improvement;
-    The program rwr adds support for the weights and direction of the network;
-    The program data_norm adds support for the trimmed mean of M-values (TMM) algorithm;
-    The program data_filter adds support for filter based on a percentage (i.e. keep 75% of total genes).
+    The program rwr added support for the weights and direction of the network;
+    The program data_norm added support for the trimmed mean of M-values (TMM) algorithm;
+    The program data_filter added support for filter based on a percentage (i.e. keep 75% of total genes).
 
 v0.5.0
     The first public version.

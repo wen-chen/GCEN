@@ -1,7 +1,7 @@
 #ifndef __ENRICH_H_
 #define __ENRICH_H_
 
-#include <algorithm>
+//#include <algorithm>
 #include <cstdlib>  // Needed to use the exit function
 #include <fstream>
 #include <iostream>
@@ -352,46 +352,38 @@ void gene_set_to_map(
   }
 }
 
-int count(
+size_t count(
     std::unordered_set<std::string>& gene_set,
     std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
-    std::unordered_map<std::string, int>& go_count_map) {
-  int n = 0;
-  std::unordered_set<std::string> go_set;
-  std::vector<std::string> go_vector;
-  for (auto gene : gene_set) {
+    std::unordered_map<std::string, int>& go_count_map) {  // for annotate
+  size_t n = 0;
+  for (auto& gene : gene_set) {
     if (assoc_map.find(gene) != assoc_map.end()) {
-      for (auto go : assoc_map[gene]) {
-        go_set.insert(go);
-        go_vector.push_back(go);
+      for (auto& go : assoc_map[gene]) {
+        if (go_count_map.find(go) != go_count_map.end()) {
+          go_count_map[go] += 1;
+        } else {
+          go_count_map[go] = 1;
+        }
       }
     }
     n += 1;
   }
-
-  for (auto go : go_set) {
-    int counts = std::count(go_vector.begin(), go_vector.end(), go);
-    go_count_map[go] = counts;
-  }
-
   return n;
 }
 
 void count(std::unordered_map<std::string, std::unordered_set<std::string>>&
                gene_go_map,
-           std::unordered_map<std::string, int>& go_count_map) {
-  std::unordered_set<std::string> go_set;
-  std::vector<std::string> go_vector;
-  for (auto gene_go_item : gene_go_map) {
-    for (auto go : gene_go_item.second) {
-      go_set.insert(go);
-      go_vector.push_back(go);
+           std::unordered_map<std::string, int>& go_count_map) {  // for enrich
+  for (auto& item : gene_go_map) {
+    std::string gene = item.first;
+    for (auto& go : gene_go_map[gene]) {
+      if (go_count_map.find(go) != go_count_map.end()) {
+        go_count_map[go] += 1;
+      } else {
+        go_count_map[go] = 1;
+      }
     }
-  }
-
-  for (auto go : go_set) {
-    int counts = std::count(go_vector.begin(), go_vector.end(), go);
-    go_count_map[go] = counts;
   }
 }
 

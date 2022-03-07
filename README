@@ -87,7 +87,7 @@ usage:
 options:
   -g --go <go-basic.obo file>
   -k --kegg <kegg information> (if the -g/--go is specified, the -k/--kegg are ignored)
-  -a --assoc <gene/go association file>
+  -a --assoc <gene-GO/KEGG association file>
   -n --network <network file>
   -m --module <module file> (if -n is specified, the -m is ignored)
   -p --pval <number> p value cutoff (default: 0.05)
@@ -210,6 +210,22 @@ options:
   -h --help print help information
 example:
   network_shuffle -i ../sample_data/test_1.network -o ../sample_data/random_shuffled.network
+
+calculate_accuracy
+description:
+  The program calculate_accuracy calculate the accuracy of prediction.
+usage:
+  calculate_accuracy -g go-basic.obo -a gene_go_association_file -n input_network
+options:
+  -g --go <go-basic.obo file>
+  -a --assoc <gene-GO/KEGG association file>
+  -n --network <network file>
+  -p --pval <number> p value cutoff (default: 0.05)
+  -t --thread <number> cpu cores (default: 2)
+  -v --version display GCEN version
+  -h --help print help information
+examples:
+  ./calculate_accuracy -g ../sample_data/go-basic.obo -a ../sample_data/gene_go.assoc -n ../sample_data/gene_co_expr.network
 
 enrich
 description:

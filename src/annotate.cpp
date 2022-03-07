@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -9,8 +10,9 @@
 #include "util/base.hpp"
 #include "util/enrich.hpp"
 #include "util/hypergeometric_p_value.hpp"
+#include "util/thread_pool.hpp"
 
-void go_annot_help() {
+void annotate_help() {
   std::cout << version;
   std::cout << "annotate usage:\n";
   std::cout << "  annotate -g go-basic.obo -a gene_go_association_file -n "
@@ -19,7 +21,7 @@ void go_annot_help() {
   std::cout << "  -g --go <go-basic.obo file>\n";
   std::cout << "  -k --kegg <kegg information> (if the -g/--go is specified, "
                "the -k/--kegg are ignored)\n";
-  std::cout << "  -a --assoc <gene/go association file>\n";
+  std::cout << "  -a --assoc <gene-GO/KEGG association file>\n";
   std::cout << "  -n --network <network file>\n";
   std::cout << "  -m --module <module file> (if -n is specified, the -m is "
                "ignored)\n";
@@ -47,13 +49,15 @@ void go_annot_help() {
                "../sample_data/module_kegg_annotation\n";
 }
 
+static std::atomic<unsigned int> completed_num;
+
 void network_go_annotate(
-    int n, int thread_num, std::vector<std::string>& gene_vec,
+    std::string gene,
     std::unordered_map<std::string, std::unordered_set<std::string>>& network,
     std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
     std::unordered_map<std::string, GO_term>& go_term_map,
     std::unordered_map<std::string, int>& background_count_map, int pop_n,
-    double pval_cutoff, std::string& out_dir);
+    double pval_cutoff, std::string out_dir);
 
 void module_go_annotate(
     int n, int thread_num,
@@ -81,7 +85,7 @@ void module_kegg_annotate(
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
-    go_annot_help();
+    annotate_help();
     return 0;
   }
 
@@ -101,12 +105,13 @@ int main(int argc, char* argv[]) {
       {"go", 1, NULL, 'g'},     {"kegg", 1, NULL, 'k'},
       {"assoc", 1, NULL, 'a'},  {"network", 1, NULL, 'n'},
       {"module", 1, NULL, 'm'}, {"output", 1, NULL, 'o'},
-      {"thread", 1, NULL, 't'}, {NULL, 0, NULL, 0}};
+      {"thread", 1, NULL, 't'}, {"pval", 1, NULL, 'p'},
+      {NULL, 0, NULL, 0}};
   int opt = getopt_long(argc, argv, short_opts, long_opts, NULL);
   while (opt != -1) {
     switch (opt) {
       case 'h':
-        go_annot_help();
+        annotate_help();
         return 0;
       case 'v':
         display_version();
@@ -136,7 +141,7 @@ int main(int argc, char* argv[]) {
         thread_num = std::stoi(optarg);
         break;
       case '?':
-        go_annot_help();
+        annotate_help();
         return 0;
       case -1:
         break;
@@ -195,24 +200,41 @@ int main(int argc, char* argv[]) {
       count(background_gene_set, assoc_map, background_count_map);
       int pop_n = background_gene_set.size();
 
-      std::vector<std::string> gene_vec;
-      for (auto network_item : network) {
+      ThreadPool thead_pool(thread_num);
+
+      unsigned int task_num = network.size();
+      for (auto& network_item : network) {
         std::string gene = network_item.first;
-        gene_vec.push_back(gene);
+        thead_pool.submit(new Task(network_go_annotate, gene, std::ref(network),
+                                   std::ref(assoc_map), std::ref(go_term_map),
+                                   std::ref(background_count_map), pop_n,
+                                   pval_cutoff, out_dir));
       }
 
-      std::vector<std::thread> threads;
-      for (int i = 0; i < thread_num; ++i) {
-        threads.push_back(
-            std::thread{network_go_annotate, i, thread_num, std::ref(gene_vec),
-                        std::ref(network), std::ref(assoc_map),
-                        std::ref(go_term_map), std::ref(background_count_map),
-                        pop_n, pval_cutoff, std::ref(out_dir)});
+      double progress = 0.0;
+      int barWidth = 70;
+      while (true) {
+        progress = (double)completed_num / task_num;
+        std::cout << "[";
+        int pos = barWidth * progress;
+        for (int i = 0; i < barWidth; ++i) {
+          if (i < pos)
+            std::cout << "=";
+          else if (i == pos)
+            std::cout << ">";
+          else
+            std::cout << " ";
+        }
+        std::cout << "] " << int(progress * 100.0) << " %\r";
+        std::cout.flush();
+        if (!(progress < 1.0)) {
+          break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
+      std::cout << std::endl;
 
-      for (auto& t : threads) {
-        t.join();
-      }
+      thead_pool.wait();
 
     } else {
       // load module
@@ -309,69 +331,61 @@ int main(int argc, char* argv[]) {
 }
 
 void network_go_annotate(
-    int n, int thread_num, std::vector<std::string>& gene_vec,
+    std::string gene,
     std::unordered_map<std::string, std::unordered_set<std::string>>& network,
     std::unordered_map<std::string, std::unordered_set<std::string>>& assoc_map,
     std::unordered_map<std::string, GO_term>& go_term_map,
     std::unordered_map<std::string, int>& background_count_map, int pop_n,
-    double pval_cutoff, std::string& out_dir) {
-  int gene_num = gene_vec.size();
-  int start = n * gene_num / thread_num;
-  int stop = (n + 1) * gene_num / thread_num;
+    double pval_cutoff, std::string out_dir) {
+  std::unordered_set<std::string> neighbor_gene_set = network[gene];
 
-  for (int i = start; i < stop; ++i) {
-    std::string gene = gene_vec[i];
-    std::unordered_set<std::string> neighbor_gene_set = network[gene];
+  std::unordered_map<std::string, int> enrichment_count_map;
+  count(neighbor_gene_set, assoc_map, enrichment_count_map);
+  int study_n = neighbor_gene_set.size();
 
-    std::unordered_map<std::string, int> enrichment_count_map;
-    count(neighbor_gene_set, assoc_map, enrichment_count_map);
-    int study_n = neighbor_gene_set.size();
-
-    std::vector<GO_result> GO_result_vec;
-
-    for (auto count_item : enrichment_count_map) {
-      std::string go = count_item.first;
-      int study_count = enrichment_count_map[go];
-      int pop_count = background_count_map[go];
-      double p_val =
-          calc_p_hypergeometric(pop_n, pop_count, study_n, study_count);
-      if (p_val < pval_cutoff) {
-        GO_result result;
-        result.id = go;
-        result.name = go_term_map[go].name;
-        result.name_space = go_term_map[go].name_space;
-        if ((study_count / (double)study_n) > (pop_count / (double)pop_n)) {
-          result.enrichment = 'e';
-        } else {
-          result.enrichment = 'p';
-        }
-        result.study_count = study_count;
-        result.study_n = study_n;
-        result.pop_count = pop_count;
-        result.pop_n = pop_n;
-        result.p_val = p_val;
-        GO_result_vec.push_back(result);
+  std::vector<GO_result> GO_result_vec;
+  for (auto count_item : enrichment_count_map) {
+    std::string go = count_item.first;
+    int study_count = enrichment_count_map[go];
+    int pop_count = background_count_map[go];
+    double p_val =
+        calc_p_hypergeometric(pop_n, pop_count, study_n, study_count);
+    if (p_val < pval_cutoff) {
+      GO_result result;
+      result.id = go;
+      result.name = go_term_map[go].name;
+      result.name_space = go_term_map[go].name_space;
+      if ((study_count / (double)study_n) > (pop_count / (double)pop_n)) {
+        result.enrichment = 'e';
+      } else {
+        result.enrichment = 'p';
       }
-    }
-
-    if (!GO_result_vec.empty()) {
-      std::sort(GO_result_vec.begin(), GO_result_vec.end());
-      std::ofstream result_file(out_dir + "/" + gene + ".go", std::ios::out);
-
-      result_file << "GO\tname\tname_space\tenrichment\tstudy_count\t"
-                     "study_n\tpop_count\tpop_n\tp_val\n";
-
-      for (auto& result : GO_result_vec) {
-        result_file << result.id << '\t' << result.name << '\t'
-                    << result.name_space << '\t' << result.enrichment << '\t'
-                    << result.study_count << '\t' << result.study_n << '\t'
-                    << result.pop_count << '\t' << result.pop_n << '\t'
-                    << result.p_val << '\n';
-      }
-
-      result_file.close();
+      result.study_count = study_count;
+      result.study_n = study_n;
+      result.pop_count = pop_count;
+      result.pop_n = pop_n;
+      result.p_val = p_val;
+      GO_result_vec.push_back(result);
     }
   }
+
+  if (!GO_result_vec.empty()) {
+    std::sort(GO_result_vec.begin(), GO_result_vec.end());
+    std::ofstream result_file(out_dir + "/" + gene + ".go", std::ios::out);
+
+    result_file << "GO\tname\tname_space\tenrichment\tstudy_count\t"
+                   "study_n\tpop_count\tpop_n\tp_val\n";
+
+    for (auto& result : GO_result_vec) {
+      result_file << result.id << '\t' << result.name << '\t'
+                  << result.name_space << '\t' << result.enrichment << '\t'
+                  << result.study_count << '\t' << result.study_n << '\t'
+                  << result.pop_count << '\t' << result.pop_n << '\t'
+                  << result.p_val << '\n';
+    }
+    result_file.close();
+  }
+  completed_num += 1;
 }
 
 void module_go_annotate(
@@ -519,7 +533,7 @@ void module_kegg_annotate(
     std::vector<KO_result> ko_result_vec;
 
     std::unordered_map<std::string, int> enrichment_count_map;
-    int study_n = count(module, assoc_map, enrichment_count_map);
+    size_t study_n = count(module, assoc_map, enrichment_count_map);
 
     for (auto count_item : enrichment_count_map) {
       std::string ko = count_item.first;

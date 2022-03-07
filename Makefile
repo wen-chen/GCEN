@@ -32,6 +32,7 @@ all:
 	$(CXX) src/network_extract.cpp -o $(PREFIX)/util/network_extract $(CCFLAGS)
 	$(CXX) src/network_shuffle.cpp -o $(PREFIX)/util/network_shuffle $(CCFLAGS)
 	$(CXX) src/enrich.cpp -o $(PREFIX)/util/enrich $(CCFLAGS)
+	$(CXX) src/calculate_accuracy.cpp -o $(PREFIX)/util/calculate_accuracy -pthread $(CCFLAGS)
 	$(CXX) src/generate_expr_matrix_from_rsem.cpp -o $(PREFIX)/util/generate_expr_matrix_from_rsem $(CCFLAGS)
 	$(CXX) src/generate_expr_matrix_from_stringtie.cpp -o $(PREFIX)/util/generate_expr_matrix_from_stringtie $(CCFLAGS)
 	$(CXX) src/csv_to_tsv.cpp -o $(PREFIX)/util/csv_to_tsv $(CCFLAGS)
