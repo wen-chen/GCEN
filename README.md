@@ -562,5 +562,8 @@ ko00520	Amino sugar and nucleotide sugar metabolism	e	2	50	3	443	0.0348134
 
 </details>
 
+## Citation  
+Wen Chen, Jing Li, Shulan Huang, Xiaodeng Li, Xuan Zhan, Xiang Hu, Shuanglin Xiang, Changning Liu. GCEN: An Easy-to-Use Toolkit for Gene Co-Expression Network Analysis and lncRNAs Annotation. Current Issues in Molecular Biology 2022; 44(4): 1479-1487. [doi:10.3390/cimb44040100](https://doi.org/10.3390/cimb44040100)  
+
 ## Contact  
 We appreciate your interest in our work. For further information or if you have any questions, please do not hesitate to contact us (Wen Harold Chen, chenwen@biochen.org).
